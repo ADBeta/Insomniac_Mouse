@@ -1,0 +1,128 @@
+
+build/insomniac.elf:     file format elf32-littleriscv
+
+SYMBOL TABLE:
+00000000 l    d  .init	00000000 .init
+000000a0 l    d  .text	00000000 .text
+00002fc4 l    d  .fini	00000000 .fini
+20000000 l    d  .dalign	00000000 .dalign
+00002fc4 l    d  .dlalign	00000000 .dlalign
+20000000 l    d  .data	00000000 .data
+20000050 l    d  .bss	00000000 .bss
+00000000 l    d  .riscv.attributes	00000000 .riscv.attributes
+00000000 l    d  .debug_info	00000000 .debug_info
+00000000 l    d  .debug_abbrev	00000000 .debug_abbrev
+00000000 l    d  .debug_loclists	00000000 .debug_loclists
+00000000 l    d  .debug_aranges	00000000 .debug_aranges
+00000000 l    d  .debug_rnglists	00000000 .debug_rnglists
+00000000 l    d  .debug_line	00000000 .debug_line
+00000000 l    d  .debug_str	00000000 .debug_str
+00000000 l    d  .debug_line_str	00000000 .debug_line_str
+00000000 l    d  .debug_frame	00000000 .debug_frame
+000024c4 l     F .text	0000008a mini_pad
+0000254e l     F .text	00000040 _puts
+0000258e l     F .text	000000c0 mini_itoa.part.0
+0000264e l     F .text	0000000a internal_handle_input.constprop.0
+00002658 l     F .text	000000ce _write.constprop.0
+00002726 l     F .text	00000014 __puts_uart
+000027d0 l     F .text	000001be mini_vpprintf
+000029b2 l     F .text	000003ca move_mouse_by_vector.constprop.0
+00000000 l    df *ABS*	00000000 adddf3.c
+00000000 l    df *ABS*	00000000 gedf2.c
+00000000 l    df *ABS*	00000000 ledf2.c
+00000000 l    df *ABS*	00000000 muldf3.c
+00000000 l    df *ABS*	00000000 subdf3.c
+00000000 l    df *ABS*	00000000 floatsidf.c
+00000000 l    df *ABS*	00000000 addsf3.c
+00000000 l    df *ABS*	00000000 divsf3.c
+00000000 l    df *ABS*	00000000 gesf2.c
+00000000 l    df *ABS*	00000000 lesf2.c
+00000000 l    df *ABS*	00000000 mulsf3.c
+00000000 l    df *ABS*	00000000 subsf3.c
+00000000 l    df *ABS*	00000000 fixsfsi.c
+00000000 l    df *ABS*	00000000 floatsisf.c
+00000000 l    df *ABS*	00000000 extendsfdf2.c
+00000000 l    df *ABS*	00000000 truncdfsf2.c
+00000000 l    df *ABS*	00000000 muldi3.o
+00000000 l    df *ABS*	00000000 div.o
+00000000 l    df *ABS*	00000000 libgcc2.c
+00000000 l    df *ABS*	00000000 libgcc2.c
+0000298e  w    F .text	00000024 printf
+20000800 g       .data	00000000 __global_pointer$
+000027ae g     F .text	00000002 TIM1_CC_IRQHandler
+000027ae g     F .text	00000002 HardFault_Handler
+0000178a g     F .text	000002a0 .hidden __divsf3
+000027ae g     F .text	00000002 SysTick_Handler
+000027ae g     F .text	00000002 PVD_IRQHandler
+000027b0 g     F .text	0000000e NMI_Handler
+00002118 g     F .text	0000005e .hidden __fixsfsi
+000006e0 g     F .text	000000ca .hidden __gtdf2
+00000000 g     F .init	0000009c InterruptVectorDefault
+20000050 g       .bss	00000000 _sbss
+00001dbe g     F .text	0000035a .hidden __subsf3
+00000000 g     F .init	0000009c InterruptVector
+000013f4 g     F .text	00000068 .hidden __floatsidf
+000007aa g     F .text	000000ca .hidden __ltdf2
+00002d7c  w    F .text	00000032 puts
+00002414 g     F .text	0000002c .hidden __hidden___udivsi3
+00002414 g     F .text	0000002c .hidden __udivsi3
+000000a0 g       .init	00000000 _einit
+00001abe g     F .text	00000094 .hidden __lesf2
+000027ae g     F .text	00000002 SPI1_IRQHandler
+000027ae g     F .text	00000002 AWU_IRQHandler
+000027ae g     F .text	00000002 EXTI7_0_IRQHandler
+00002234 g     F .text	00000094 .hidden __extendsfdf2
+000000a0 g     F .text	00000640 .hidden __adddf3
+000027ae g     F .text	00000002 DMA1_Channel4_IRQHandler
+000027ae g     F .text	00000002 ADC1_IRQHandler
+20000050 g       .bss	00000000 _ebss
+000027ae g     F .text	00000002 DMA1_Channel7_IRQHandler
+00001a2a g     F .text	00000094 .hidden __gtsf2
+000007aa g     F .text	000000ca .hidden __ledf2
+00002440 g     F .text	00000008 .hidden __umodsi3
+000027ae g     F .text	00000002 I2C1_EV_IRQHandler
+000027ae g     F .text	00000002 DMA1_Channel6_IRQHandler
+0000248a g     F .text	0000003a .hidden __clzsi2
+000027ae g     F .text	00000002 RCC_IRQHandler
+000027ae g     F .text	00000002 TIM1_TRG_COM_IRQHandler
+000027ae g     F .text	00000002 DMA1_Channel1_IRQHandler
+00002176 g     F .text	000000be .hidden __floatsisf
+000023f4 g     F .text	00000014 .hidden __mulsi3
+000027ae g     F .text	00000002 DefaultIRQHandler
+20000000 g       .dalign	00000000 _data_vma
+000027b0 g     F .text	0000000e NMI_RCC_CSS_IRQHandler
+00000874 g     F .text	0000050e .hidden __muldf3
+00002e02 g     F .text	0000004c main
+00001abe g     F .text	00000094 .hidden __ltsf2
+000022c8 g     F .text	0000012c .hidden __truncdfsf2
+000027ae g     F .text	00000002 DMA1_Channel5_IRQHandler
+0000240c g     F .text	00000058 .hidden __divsi3
+00001b52 g     F .text	0000026c .hidden __mulsf3
+00002dae g     F .text	00000054 SystemInit
+00002e8c g     O .text	00000100 .hidden __clz_tab
+00000000 g       .init	00000000 _sinit
+00001a2a g     F .text	00000094 .hidden __gesf2
+000027ae g     F .text	00000002 DMA1_Channel3_IRQHandler
+000027ae g     F .text	00000002 TIM1_UP_IRQHandler
+000027ae g     F .text	00000002 WWDG_IRQHandler
+000027ae g     F .text	00000002 TIM2_IRQHandler
+20000800 g       .data	00000000 _eusrstack
+00002463  w      .debug_info	00000000 .hidden mini_math.c.e3c877e4
+000027ae g     F .text	00000002 SW_Handler
+000027ae g     F .text	00000002 TIM1_BRK_IRQHandler
+20000050 g       .data	00000000 _edata
+00002fc4 g       .dlalign	00000000 _data_lma
+00002464 g     F .text	00000024 .hidden __modsi3
+000027ae g     F .text	00000002 DMA1_Channel2_IRQHandler
+0000273a g     F .text	00000074 handle_reset
+000027ae g     F .text	00000002 FLASH_IRQHandler
+000021d7  w      .debug_info	00000000 .hidden insomniac.c.e51033ff
+000027ae g     F .text	00000002 USART1_IRQHandler
+000027be  w    F .text	00000012 strlen
+000006e0 g     F .text	000000ca .hidden __gedf2
+000027ae g     F .text	00000002 I2C1_ER_IRQHandler
+00000d82 g     F .text	00000672 .hidden __subdf3
+000013ab  w      .debug_info	00000000 .hidden ch32v003fun.c.e3f7751f
+0000145c g     F .text	0000032e .hidden __addsf3
+
+
