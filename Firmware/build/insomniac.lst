@@ -262,7 +262,7 @@ Disassembly of section .text:
  2be:	00d65363          	bge	a2,a3,2c4 <_write.constprop.0+0x3e>
  2c2:	471d                	li	a4,7
  2c4:	00027637          	lui	a2,0x27
- 2c8:	10160613          	addi	a2,a2,257 # 27101 <insomniac.c.241f8fc7+0x252eb>
+ 2c8:	10160613          	addi	a2,a2,257 # 27101 <insomniac.c.3a741fe1+0x252eb>
  2cc:	00032583          	lw	a1,0(t1)
  2d0:	0805f513          	andi	a0,a1,128
  2d4:	ed3d                	bnez	a0,352 <_write.constprop.0+0xcc>
@@ -573,9 +573,9 @@ Disassembly of section .text:
  5e8:	8082                	ret
 
 000005ea <move_to_endpoint>:
-	uint32_t mask = x >> 31; // Extract the sign bit
-	return (x ^ mask) - mask;
+	return MD_BUFFER_OK;
 }
+
 
 void move_to_endpoint(const position_t endpoint)
 {
@@ -779,7 +779,7 @@ void move_to_endpoint(const position_t endpoint)
  73c:	400217b7          	lui	a5,0x40021
  740:	01080737          	lui	a4,0x1080
  744:	0007a223          	sw	zero,4(a5) # 40021004 <__global_pointer$+0x20020804>
- 748:	08170713          	addi	a4,a4,129 # 1080081 <insomniac.c.241f8fc7+0x107e26b>
+ 748:	08170713          	addi	a4,a4,129 # 1080081 <insomniac.c.3a741fe1+0x107e26b>
  74c:	c398                	sw	a4,0(a5)
  74e:	009f0737          	lui	a4,0x9f0
  752:	c798                	sw	a4,8(a5)
@@ -817,7 +817,7 @@ void move_to_endpoint(const position_t endpoint)
  7a2:	379d                	jal	708 <puts>
 	move_to_endpoint( (const position_t){-5, 0});
  7a4:	6541                	lui	a0,0x10
- 7a6:	156d                	addi	a0,a0,-5 # fffb <insomniac.c.241f8fc7+0xe1e5>
+ 7a6:	156d                	addi	a0,a0,-5 # fffb <insomniac.c.3a741fe1+0xe1e5>
  7a8:	3589                	jal	5ea <move_to_endpoint>
 	printf("\n\n0,5\n");
  7aa:	6505                	lui	a0,0x1

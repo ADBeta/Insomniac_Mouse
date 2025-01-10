@@ -57,7 +57,6 @@ SYMBOL TABLE:
 000003ee g     F .text	00000002 RCC_IRQHandler
 000003ee g     F .text	00000002 TIM1_TRG_COM_IRQHandler
 000003ee g     F .text	00000002 DMA1_Channel1_IRQHandler
-00001e16  w      .debug_info	00000000 .hidden insomniac.c.241f8fc7
 000003ee g     F .text	00000002 DefaultIRQHandler
 20000000 g       .dalign	00000000 _data_vma
 000003f0 g     F .text	0000000e NMI_RCC_CSS_IRQHandler
@@ -76,6 +75,7 @@ SYMBOL TABLE:
 000003ee g     F .text	00000002 TIM1_BRK_IRQHandler
 20000004 g       .data	00000000 _edata
 00000810 g       .dlalign	00000000 _data_lma
+00001e16  w      .debug_info	00000000 .hidden insomniac.c.3a741fe1
 000000f8 g     F .text	00000024 .hidden __modsi3
 000003ee g     F .text	00000002 DMA1_Channel2_IRQHandler
 0000037a g     F .text	00000074 handle_reset

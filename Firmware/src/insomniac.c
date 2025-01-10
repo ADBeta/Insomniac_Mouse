@@ -21,12 +21,18 @@ typedef uint8_t mouse_delta_t;
 #define MOUSE_DELTA_L      0b00001100
 #define MOUSE_DELTA_R      0b00000011
 
+typedef enum {
+	MD_BUFFER_OK             = 0,
+	MD_BUFFER_NO_SPACE,             // No Space to append to buffer
+	MD_BUFFER_NO_DATA               // No Data to read from the buffer
+} md_buffer_status_t;
+
 /*** Globals *****************************************************************/
 // Ring Buffer Variables
-#define            MD_BUFFER_SIZE   128
-mouse_delta_t      md_buffer[MD_BUFFER_SIZE];
-volatile uint32_t  md_head = 0;
-volatile uint32_t  md_tail = 0;
+#define                 MD_BUFFER_SIZE   128
+static mouse_delta_t    md_buffer[MD_BUFFER_SIZE];
+volatile uint32_t       md_buffer_head = 0;
+volatile uint32_t       md_buffer_tail = 0;
 
 
 /*** Forward Declarations ****************************************************/
@@ -34,6 +40,16 @@ volatile uint32_t  md_tail = 0;
 /// @param input x
 /// @param output abs(x)
 uint32_t int_abs(const int32_t x);
+
+/// @brief Mouse Delta Ring Buffer Push
+/// @param Mouse Delta Value
+/// @return Mouse Delta Status
+md_buffer_status_t md_buffer_push(const mouse_delta_t mdv);
+
+/// @brief Mouse Delta Ring Buffer Pop
+/// @param Mouse Delta Pointer
+/// @return Mouse Delta Status
+md_buffer_status_t md_buffer_pop(mouse_delta_t *mdp);
 
 
 /// @brief Plots movement to a given co-ordinate point. Appends the movement
@@ -67,6 +83,36 @@ uint32_t int_abs(const int32_t x)
 	uint32_t mask = x >> 31; // Extract the sign bit
 	return (x ^ mask) - mask;
 }
+
+
+md_buffer_status_t md_buffer_push(const mouse_delta_t mdv)
+{
+	// Calculate the next head position
+	size_t next_head = (md_buffer_head + 1) % MD_BUFFER_SIZE;
+	// If there is no space left in the buffer, reject incomming data
+	if(next_head == md_buffer_tail) return MD_BUFFER_NO_SPACE;
+
+	// Append the data to the current head position
+	md_buffer[md_buffer_head] = mdv;
+	// Update the current head position
+	md_buffer_head = next_head;
+
+	return MD_BUFFER_OK;
+}
+
+md_buffer_status_t md_buffer_pop(mouse_delta_t *mdp)
+{
+	// Exit if there is no more data to be popped off
+	if(md_buffer_head == md_buffer_tail) return MD_BUFFER_NO_DATA;
+	// Set the data pointer from the buffer
+	*mdp = md_buffer[md_buffer_tail];
+
+	// Update the Tail Position
+	md_buffer_tail = (md_buffer_tail + 1) % MD_BUFFER_SIZE;
+
+	return MD_BUFFER_OK;
+}
+
 
 void move_to_endpoint(const position_t endpoint)
 {
