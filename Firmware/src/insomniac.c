@@ -5,14 +5,42 @@
 #include <stdio.h>
 
 /*** Types and Definitions ***************************************************/
+/// @brief A C-ordinate position struct, X/Y Data can be positive or negative
 typedef struct {
 	int16_t          x;
 	int16_t          y;
 } position_t;
 
-/** Forward Declarations *****************************************************/
+/// @brief Remapping of a uint8_t to movement type, 2 nibbles
+/// [Up    /   Down]  [Left  /  Right]
+///  1100      0011    1100      0011
+typedef uint8_t mouse_delta_t;
 
-/// TODO:
+#define MOUSE_DELAT_U      0b11000000
+#define MOUSE_DELTA_D      0b00110000
+#define MOUSE_DELTA_L      0b00001100
+#define MOUSE_DELTA_R      0b00000011
+
+/*** Globals *****************************************************************/
+// Ring Buffer Variables
+#define            MD_BUFFER_SIZE   128
+mouse_delta_t      md_buffer[MD_BUFFER_SIZE];
+volatile uint32_t  md_head = 0;
+volatile uint32_t  md_tail = 0;
+
+
+/*** Forward Declarations ****************************************************/
+/// @brief Efficient Implimentation of an integer abs() function
+/// @param input x
+/// @param output abs(x)
+uint32_t int_abs(const int32_t x);
+
+
+/// @brief Plots movement to a given co-ordinate point. Appends the movement
+/// data to the circuilar buffer to be dispatched to the USB Interrupt
+/// @param postion_t endpoint to plot to. Contains X/Y data, can be positive
+/// or negative
+/// @return None TODO: Buffer full ??
 void move_to_endpoint(const position_t endpoint);
 
 
@@ -42,7 +70,7 @@ uint32_t int_abs(const int32_t x)
 
 void move_to_endpoint(const position_t endpoint)
 {
-	position_t startpoint = {0, 0};
+ 	position_t startpoint = {0, 0};
 
 	// Bresenham variables
 	// Delta x and y - total distances to cover in x and y direction
