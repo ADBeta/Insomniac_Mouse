@@ -98,12 +98,11 @@ int main(void)
 		// Wait for the flag that the buffer is empty
 		if(g_buffer_empty_flag)
 		{
-			// Generate a random position to move to, between something
+			// Generate a random position then push the commands to move to it
 			position_t rand_pos = {.x = int_rand(), .y = int_rand()};
-			if( move_to_endpoint(rand_pos) != MD_BUFFER_OK) 
-				puts("OF");
+			move_to_endpoint(rand_pos);
 
-			// Reset the flag
+			// Reset the empty flag, waits until it is done moving
 			g_buffer_empty_flag = 0x00;
 		}
 
