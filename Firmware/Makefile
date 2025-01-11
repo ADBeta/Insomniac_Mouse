@@ -9,6 +9,7 @@ TARGET := insomniac
 
 # Compiles every additional .c file
 TARGET_SOURCE_FILES := $(filter-out $(SRC_DIR)/$(TARGET).c, $(wildcard $(SRC_DIR)/*.c))
+TARGET_SOURCE_FILES += $(SRC_DIR)/rv003usb/rv003usb.c $(SRC_DIR)/rv003usb/rv003usb.S
 # Change this to specify your MCU model, for compilation
 TARGET_MCU := CH32V003
 

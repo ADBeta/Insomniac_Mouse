@@ -2,6 +2,8 @@
 *
 ******************************************************************************/
 #include "ch32v003fun.h"
+#include "rv003usb.h"
+#include "lib_rand.h"
 #include <stdio.h>
 
 /*** Types and Definitions ***************************************************/
@@ -16,7 +18,7 @@ typedef struct {
 ///  1100      0011    1100      0011
 typedef uint8_t mouse_delta_t;
 
-#define MOUSE_DELAT_U      0b11000000
+#define MOUSE_DELTA_U      0b11000000
 #define MOUSE_DELTA_D      0b00110000
 #define MOUSE_DELTA_L      0b00001100
 #define MOUSE_DELTA_R      0b00000011
@@ -29,17 +31,26 @@ typedef enum {
 
 /*** Globals *****************************************************************/
 // Ring Buffer Variables
-#define                 MD_BUFFER_SIZE   128
-static mouse_delta_t    md_buffer[MD_BUFFER_SIZE];
-volatile uint32_t       md_buffer_head = 0;
-volatile uint32_t       md_buffer_tail = 0;
+#define                 MD_BUFFER_SIZE   256
+static mouse_delta_t    g_md_buffer[MD_BUFFER_SIZE];
+volatile uint32_t       g_md_buffer_head = 0;
+volatile uint32_t       g_md_buffer_tail = 0;
 
+// Buffer is ready for another movement flag.
+// 0x00 Not Empty
+// 0x01 Empty
+volatile uint8_t        g_buffer_empty_flag = 0x00;
 
 /*** Forward Declarations ****************************************************/
 /// @brief Efficient Implimentation of an integer abs() function
 /// @param input x
 /// @param output abs(x)
 uint32_t int_abs(const int32_t x);
+
+/// @brief Generates a random signed integer, limited to an upper number
+/// @param None
+/// @return int16_t integer
+int16_t int_rand(void);
 
 /// @brief Mouse Delta Ring Buffer Push
 /// @param Mouse Delta Value
@@ -56,28 +67,102 @@ md_buffer_status_t md_buffer_pop(mouse_delta_t *mdp);
 /// data to the circuilar buffer to be dispatched to the USB Interrupt
 /// @param postion_t endpoint to plot to. Contains X/Y data, can be positive
 /// or negative
-/// @return None TODO: Buffer full ??
-void move_to_endpoint(const position_t endpoint);
+/// @return md_buffer_state to mirror if the buffer is full
+md_buffer_status_t move_to_endpoint(const position_t endpoint);
 
 
 /*** Main ********************************************************************/
 int main(void)
 {
 	SystemInit();
+
+	// TODO: Seed
+
+	// Ensures USB re-enumeration after bootloader or reset
+	Delay_Ms(1); 
+	usb_setup();
+
+	while(1) 
+	{
+		// Wait for the flag that the buffer is empty
+		if(g_buffer_empty_flag)
+		{
+			// Generate a random position to move to, between something
+			position_t rand_pos = {.x = int_rand(), .y = int_rand()};
+			if( move_to_endpoint(rand_pos) != MD_BUFFER_OK) 
+				puts("OF");
+
+			// Reset the flag
+			g_buffer_empty_flag = 0x00;
+		}
+	}
+}
+
+
+// rv003usb HID Function
+void usb_handle_user_in_request( struct usb_endpoint * e, uint8_t * scratchpad, int endp, uint32_t sendtok, struct rv003usb_internal * ist )
+{
+	static mouse_delta_t mouse_delta;
 	
-	printf("5,0\n");
-	move_to_endpoint( (const position_t){-5, 0});
+	// Handle the USB Mouse messages
+	if(endp == 1)
+	{
+		// Define an empty mouse data array
+		uint8_t mouse_data[4] = {0x00, 0x00, 0x00, 0x00};
 
-	printf("\n\n0,5\n");
-	move_to_endpoint( (const position_t){0, -5});
+		// Modify the buffer if there is data ready in the Mouse Delta Buffer 
+		if(md_buffer_pop(&mouse_delta) == MD_BUFFER_OK)
+		{
+			// signed 8 bit ints for movement, using Unsigned representation
+			// [1] is (0xFF)L  (0x01)R
+			// [2] is (0xFF)U  (0x01)D
 
-	printf("\n\n5,5\n");
-	move_to_endpoint( (const position_t){-5, -5});
+			switch(mouse_delta)
+			{
+				case MOUSE_DELTA_L:
+					mouse_data[1] = 0xFF;
+					break;
+				case MOUSE_DELTA_R:
+					mouse_data[1] = 0x01;
+					break;
 
+				case MOUSE_DELTA_U:
+					mouse_data[2] = 0xFF;
+					break;
+				case MOUSE_DELTA_D:
+					mouse_data[2] = 0x01;
+					break;
+			}
+		}
+		else
+		{
+			// Flag that the buffer is ready for new movement data
+			g_buffer_empty_flag = 0x01;
+		}
+
+		// Send the data to the USB Controller - Either 0x00's or has Delta data
+		usb_send_data(mouse_data, 4, 0, sendtok);
+	}
+	else
+	{
+		// If it's a control transfer, empty it.
+		usb_send_empty(sendtok);
+	}
 }
 
 
 /*** Functions ***************************************************************/
+int16_t int_rand(void)
+{
+	// Generate a number between 0 - 250, then subtract 125 to get it in the
+	// correct range (-125 <-> 125)
+	int16_t rand_num = rand() & 0x00FF;
+	if(rand_num > 250) rand_num = 250;
+	
+	return rand_num - 125;
+}
+
+
 uint32_t int_abs(const int32_t x)
 {
 	uint32_t mask = x >> 31; // Extract the sign bit
@@ -88,35 +173,38 @@ uint32_t int_abs(const int32_t x)
 md_buffer_status_t md_buffer_push(const mouse_delta_t mdv)
 {
 	// Calculate the next head position
-	size_t next_head = (md_buffer_head + 1) % MD_BUFFER_SIZE;
+	size_t next_head = (g_md_buffer_head + 1) % MD_BUFFER_SIZE;
 	// If there is no space left in the buffer, reject incomming data
-	if(next_head == md_buffer_tail) return MD_BUFFER_NO_SPACE;
+	if(next_head == g_md_buffer_tail) return MD_BUFFER_NO_SPACE;
 
 	// Append the data to the current head position
-	md_buffer[md_buffer_head] = mdv;
+	g_md_buffer[g_md_buffer_head] = mdv;
 	// Update the current head position
-	md_buffer_head = next_head;
+	g_md_buffer_head = next_head;
 
 	return MD_BUFFER_OK;
 }
+
 
 md_buffer_status_t md_buffer_pop(mouse_delta_t *mdp)
 {
 	// Exit if there is no more data to be popped off
-	if(md_buffer_head == md_buffer_tail) return MD_BUFFER_NO_DATA;
+	if(g_md_buffer_head == g_md_buffer_tail) return MD_BUFFER_NO_DATA;
 	// Set the data pointer from the buffer
-	*mdp = md_buffer[md_buffer_tail];
+	*mdp = g_md_buffer[g_md_buffer_tail];
 
 	// Update the Tail Position
-	md_buffer_tail = (md_buffer_tail + 1) % MD_BUFFER_SIZE;
+	g_md_buffer_tail = (g_md_buffer_tail + 1) % MD_BUFFER_SIZE;
 
 	return MD_BUFFER_OK;
 }
 
 
-void move_to_endpoint(const position_t endpoint)
+md_buffer_status_t move_to_endpoint(const position_t endpoint)
 {
- 	position_t startpoint = {0, 0};
+	md_buffer_status_t md_return = MD_BUFFER_OK;
+ 
+	position_t startpoint = {0, 0};
 
 	// Bresenham variables
 	// Delta x and y - total distances to cover in x and y direction
@@ -142,8 +230,10 @@ void move_to_endpoint(const position_t endpoint)
 			err -= y_delta;
 			startpoint.x += x_step;
 
-			// TODO:
-			printf("Step: %s\n", (x_step > 0) ? "right" : "left");
+			// Push Left or Right instructions to the Mouse Delta Buffer
+			md_return = md_buffer_push( (x_step > 0) ? MOUSE_DELTA_R : MOUSE_DELTA_L);
+			// If the buffer is full, exit early
+			if(md_return != MD_BUFFER_OK)  return md_return;
 		}
 
 		// Step in the Y direction - add the horizontal error to account for
@@ -153,8 +243,12 @@ void move_to_endpoint(const position_t endpoint)
 			err += x_delta;
 			startpoint.y += y_step;
 
-			// TODO:
-			printf("Step: %s\n", (y_step > 0) ? "up" : "down");
+			// Push Up and Down Instructions to the Mouse Delta Buffer
+			md_return = md_buffer_push( (y_step > 0) ? MOUSE_DELTA_U : MOUSE_DELTA_D);
+			// If the buffer is full, exit early
+			if(md_return != MD_BUFFER_OK)  return md_return;
 		}
 	}
+
+	return md_return;
 }
