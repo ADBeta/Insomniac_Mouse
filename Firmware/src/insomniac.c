@@ -76,14 +76,19 @@ int main(void)
 {
 	SystemInit();
 
-	// TODO: Seed
+	// TODO:
+	seed(0x12345678);
 
 	// Ensures USB re-enumeration after bootloader or reset
 	Delay_Ms(1); 
-	usb_setup();
+	//usb_setup();
 
 	while(1) 
 	{
+		printf("%d\n", (int16_t)rand());
+		//Delay_Ms(50);
+
+		/*
 		// Wait for the flag that the buffer is empty
 		if(g_buffer_empty_flag)
 		{
@@ -95,6 +100,7 @@ int main(void)
 			// Reset the flag
 			g_buffer_empty_flag = 0x00;
 		}
+		*/
 	}
 }
 
@@ -154,12 +160,12 @@ void usb_handle_user_in_request( struct usb_endpoint * e, uint8_t * scratchpad, 
 /*** Functions ***************************************************************/
 int16_t int_rand(void)
 {
-	// Generate a number between 0 - 250, then subtract 125 to get it in the
-	// correct range (-125 <-> 125)
-	int16_t rand_num = rand() & 0x00FF;
-	if(rand_num > 250) rand_num = 250;
+	// Generate a number between 0 - 200, then subtract 100 to get it in the
+	// correct range (-100 <-> 100)
+	int16_t rand_num = 0x7FFF; // Max Value
+	while(rand_num > 500) rand_num = rand() & 0x00FF;
 	
-	return rand_num - 125;
+	return rand_num - 250;
 }
 
 

@@ -4,9 +4,9 @@ build/insomniac.elf:     file format elf32-littleriscv
 SYMBOL TABLE:
 00000000 l    d  .init	00000000 .init
 000000a0 l    d  .text	00000000 .text
-00000c20 l    d  .fini	00000000 .fini
+00000e18 l    d  .fini	00000000 .fini
 20000000 l    d  .dalign	00000000 .dalign
-00000c20 l    d  .dlalign	00000000 .dlalign
+00000e18 l    d  .dlalign	00000000 .dlalign
 20000000 l    d  .data	00000000 .data
 20000008 l    d  .bss	00000000 .bss
 00000000 l    d  .riscv.attributes	00000000 .riscv.attributes
@@ -19,116 +19,125 @@ SYMBOL TABLE:
 00000000 l    d  .debug_str	00000000 .debug_str
 00000000 l    d  .debug_line_str	00000000 .debug_line_str
 00000000 l    d  .debug_frame	00000000 .debug_frame
-000000a0 l     F .text	00000042 _rand_gen_32b
+0000011e l     F .text	0000009c mini_pad
+000001ba l     F .text	000000c0 mini_itoa.part.0
+0000027a l     F .text	00000042 _rand_gen_32b
 20000000 l     O .data	00000004 _rand_lfsr
-000000e2 l     F .text	00000030 md_buffer_push
-20000010 l     O .bss	00000004 g_md_buffer_head
-2000000c l     O .bss	00000004 g_md_buffer_tail
-20000018 l     O .bss	00000100 g_md_buffer
-00000112 l     F .text	0000000c internal_handle_input.constprop.0
-0000011e l     F .text	000000e0 _write.constprop.0
-20000014 l     O .bss	00000001 g_buffer_empty_flag
-20000008 l     O .bss	00000001 mouse_delta.0
-00000bc0 l     O .text	00000060 descriptor_list
-00000ad4 l     O .text	0000000a string3
-00000ae0 l     O .text	00000016 string2
-00000af8 l     O .text	00000010 string1
-00000b08 l     O .text	00000004 string0
-00000b14 l     O .text	0000003f keyboard_hid_desc
-00000b54 l     O .text	00000034 mouse_hid_desc
-00000b88 l     O .text	00000022 config_descriptor
-00000bac l     O .text	00000012 device_descriptor
-00000000 l    df *ABS*	00000000 ccPWKXRZ.o
-00000938 l       .text	00000000 handle_se0_keepalive
-00000748 l       .text	00000000 syncout
-00000750 l       .text	00000000 preamble_loop
-000008d6 l       .text	00000000 done_usb_message
-00000774 l       .text	00000000 done_preamble
-00000780 l       .text	00000000 packet_type_loop
-000007cc l       .text	00000000 data_crc
-000007cc l       .text	00000000 is_end_of_byte
-000007d4 l       .text	00000000 bit_process
-00000808 l       .text	00000000 handle_one_bit
-000007e0 l       .text	00000000 handle_zero_bit
-0000085c l       .text	00000000 se0_complete
-00000830 l       .text	00000000 handle_bit_stuff
-00000840 l       .text	00000000 not_is_end_of_byte_and_bit_stuffed
-000008d6 l       .text	00000000 done_usb_message_in
-00000906 l       .text	00000000 usb_pid_handle_ack
-000008ae l       .text	00000000 crc_for_tokens_would_be_bad_maybe_data
-00000880 l       .text	00000000 may_be_a_token
-00000898 l       .text	00000000 yes_check_tokens
-00000934 l       .text	00000000 usb_pid_handle_out
-0000091e l       .text	00000000 usb_pid_handle_setup
-000008e2 l       .text	00000000 ret_from_se0
-000008ee l       .text	00000000 interrupt_complete
-000009e4 l       .text	00000000 done_poly_check
-000009f8 l       .text	00000000 pre_and_tok_send_inner_loop
-00000a08 l       .text	00000000 pre_and_tok_send_one_bit
-00000a18 l       .text	00000000 pre_and_tok_done_sending_data
-00000a84 l       .text	00000000 no_really_done_sending_data
-00000a26 l       .text	00000000 done_poly_check2
-00000a28 l       .text	00000000 load_next_byte
-00000a2c l       .text	00000000 send_inner_loop
-00000a48 l       .text	00000000 send_zero_bit
-00000abc l       .text	00000000 insert_stuffed_bit
-00000a60 l       .text	00000000 cont_after_jump
-00000a60 l       .text	00000000 send_end_bit_complete
-00000a70 l       .text	00000000 done_sending_data
-00000994 g       .text	00000000 usb_send_empty
+000002bc l     F .text	0000000c internal_handle_input.constprop.0
+000002c8 l     F .text	000000e0 _write.constprop.0
+000003a8 l     F .text	00000014 __puts_uart
+00000450 l     F .text	000001b4 mini_vpprintf
+2000000c l     O .bss	00000004 g_md_buffer_head
+20000008 l     O .bss	00000004 g_md_buffer_tail
+20000010 l     O .bss	00000001 g_buffer_empty_flag
+20000011 l     O .bss	00000001 mouse_delta.0
+00000db8 l     O .text	00000060 descriptor_list
+00000cd0 l     O .text	0000000a string3
+00000cdc l     O .text	00000016 string2
+00000cf4 l     O .text	00000010 string1
+00000d04 l     O .text	00000004 string0
+00000d0c l     O .text	0000003f keyboard_hid_desc
+00000d4c l     O .text	00000034 mouse_hid_desc
+00000d80 l     O .text	00000022 config_descriptor
+00000da4 l     O .text	00000012 device_descriptor
+00000000 l    df *ABS*	00000000 div.o
+00000000 l    df *ABS*	00000000 cchSjlmr.o
+00000b30 l       .text	00000000 handle_se0_keepalive
+0000093c l       .text	00000000 syncout
+00000944 l       .text	00000000 preamble_loop
+00000ace l       .text	00000000 done_usb_message
+00000968 l       .text	00000000 done_preamble
+00000974 l       .text	00000000 packet_type_loop
+000009c0 l       .text	00000000 data_crc
+000009c0 l       .text	00000000 is_end_of_byte
+000009c8 l       .text	00000000 bit_process
+000009fc l       .text	00000000 handle_one_bit
+000009d4 l       .text	00000000 handle_zero_bit
+00000a50 l       .text	00000000 se0_complete
+00000a24 l       .text	00000000 handle_bit_stuff
+00000a34 l       .text	00000000 not_is_end_of_byte_and_bit_stuffed
+00000ace l       .text	00000000 done_usb_message_in
+00000afe l       .text	00000000 usb_pid_handle_ack
+00000aa6 l       .text	00000000 crc_for_tokens_would_be_bad_maybe_data
+00000a78 l       .text	00000000 may_be_a_token
+00000a90 l       .text	00000000 yes_check_tokens
+00000b2c l       .text	00000000 usb_pid_handle_out
+00000b16 l       .text	00000000 usb_pid_handle_setup
+00000ada l       .text	00000000 ret_from_se0
+00000ae6 l       .text	00000000 interrupt_complete
+00000be0 l       .text	00000000 done_poly_check
+00000bf4 l       .text	00000000 pre_and_tok_send_inner_loop
+00000c04 l       .text	00000000 pre_and_tok_send_one_bit
+00000c14 l       .text	00000000 pre_and_tok_done_sending_data
+00000c80 l       .text	00000000 no_really_done_sending_data
+00000c22 l       .text	00000000 done_poly_check2
+00000c24 l       .text	00000000 load_next_byte
+00000c28 l       .text	00000000 send_inner_loop
+00000c44 l       .text	00000000 send_zero_bit
+00000cb8 l       .text	00000000 insert_stuffed_bit
+00000c5c l       .text	00000000 cont_after_jump
+00000c5c l       .text	00000000 send_end_bit_complete
+00000c6c l       .text	00000000 done_sending_data
+00000b90 g       .text	00000000 usb_send_empty
+00000604  w    F .text	00000026 printf
 20000800 g       .data	00000000 __global_pointer$
-00000270 g     F .text	00000002 TIM1_CC_IRQHandler
-00000270 g     F .text	00000002 HardFault_Handler
-00000270 g     F .text	00000002 SysTick_Handler
-00000270 g     F .text	00000002 PVD_IRQHandler
-00000272 g     F .text	0000000e NMI_Handler
+0000042e g     F .text	00000002 TIM1_CC_IRQHandler
+0000042e g     F .text	00000002 HardFault_Handler
+0000042e g     F .text	00000002 SysTick_Handler
+0000042e g     F .text	00000002 PVD_IRQHandler
+00000430 g     F .text	0000000e NMI_Handler
 00000000 g     F .init	0000009c InterruptVectorDefault
 20000008 g       .bss	00000000 _sbss
-00000292  w    F .text	0000001c memcpy
+0000063c  w    F .text	0000001c memcpy
 00000000 g     F .init	0000009c InterruptVector
-00001408  w      .debug_info	00000000 .hidden ch32v003fun.c.080faaac
-000002ae  w    F .text	0000002c puts
+0000127d  w      .debug_info	00000000 .hidden ch32v003fun.c.080faaac
+000000a8 g     F .text	0000002c .hidden __hidden___udivsi3
+000000a8 g     F .text	0000002c .hidden __udivsi3
 000000a0 g       .init	00000000 _einit
-00000270 g     F .text	00000002 SPI1_IRQHandler
-00000270 g     F .text	00000002 AWU_IRQHandler
-000006e0 g       .text	00000000 EXTI7_0_IRQHandler
-000005ee g     F .text	000000f0 usb_pid_handle_data
-00000270 g     F .text	00000002 DMA1_Channel4_IRQHandler
-00000270 g     F .text	00000002 ADC1_IRQHandler
-20000174 g       .bss	00000000 _ebss
-00000270 g     F .text	00000002 DMA1_Channel7_IRQHandler
-000027e1  w      .debug_info	00000000 .hidden rv003usb.c.538ff38c
-00000270 g     F .text	00000002 I2C1_EV_IRQHandler
-00000270 g     F .text	00000002 DMA1_Channel6_IRQHandler
-00000270 g     F .text	00000002 RCC_IRQHandler
-00000270 g     F .text	00000002 TIM1_TRG_COM_IRQHandler
-00000270 g     F .text	00000002 DMA1_Channel1_IRQHandler
-00000270 g     F .text	00000002 DefaultIRQHandler
+0000042e g     F .text	00000002 SPI1_IRQHandler
+0000042e g     F .text	00000002 AWU_IRQHandler
+000008d4 g       .text	00000000 EXTI7_0_IRQHandler
+000007e4 g     F .text	000000f0 usb_pid_handle_data
+0000042e g     F .text	00000002 DMA1_Channel4_IRQHandler
+0000042e g     F .text	00000002 ADC1_IRQHandler
+20000070 g       .bss	00000000 _ebss
+0000042e g     F .text	00000002 DMA1_Channel7_IRQHandler
+0000264e  w      .debug_info	00000000 .hidden rv003usb.c.538ff38c
+000000d4 g     F .text	00000008 .hidden __umodsi3
+0000042e g     F .text	00000002 I2C1_EV_IRQHandler
+0000042e g     F .text	00000002 DMA1_Channel6_IRQHandler
+0000042e g     F .text	00000002 RCC_IRQHandler
+0000042e g     F .text	00000002 TIM1_TRG_COM_IRQHandler
+0000042e g     F .text	00000002 DMA1_Channel1_IRQHandler
+0000042e g     F .text	00000002 DefaultIRQHandler
 20000000 g       .dalign	00000000 _data_vma
-00000ad0 g       .text	00000000 always0
-00000272 g     F .text	0000000e NMI_RCC_CSS_IRQHandler
-0000033c g     F .text	0000018c main
-00000270 g     F .text	00000002 DMA1_Channel5_IRQHandler
-000002da g     F .text	00000062 SystemInit
+00000ccc g       .text	00000000 always0
+00000430 g     F .text	0000000e NMI_RCC_CSS_IRQHandler
+0000062a  w    F .text	00000012 memset
+000006ba g     F .text	0000004c main
+0000042e g     F .text	00000002 DMA1_Channel5_IRQHandler
+000000a0 g     F .text	00000058 .hidden __divsi3
+00000658 g     F .text	00000062 SystemInit
 00000000 g       .init	00000000 _sinit
-00000270 g     F .text	00000002 DMA1_Channel3_IRQHandler
-000004c8 g     F .text	00000126 usb_pid_handle_in
-00000270 g     F .text	00000002 TIM1_UP_IRQHandler
-00000270 g     F .text	00000002 WWDG_IRQHandler
-00002234  w      .debug_info	00000000 .hidden insomniac.c.46e96dbc
-00000270 g     F .text	00000002 TIM2_IRQHandler
+0000042e g     F .text	00000002 DMA1_Channel3_IRQHandler
+00000706 g     F .text	000000de usb_pid_handle_in
+0000042e g     F .text	00000002 TIM1_UP_IRQHandler
+0000042e g     F .text	00000002 WWDG_IRQHandler
+0000042e g     F .text	00000002 TIM2_IRQHandler
 20000800 g       .bss	00000000 _eusrstack
-00000270 g     F .text	00000002 SW_Handler
-00000270 g     F .text	00000002 TIM1_BRK_IRQHandler
-000009a2 g       .text	00000000 usb_send_data
+0000042e g     F .text	00000002 SW_Handler
+0000042e g     F .text	00000002 TIM1_BRK_IRQHandler
+00000b9e g       .text	00000000 usb_send_data
+000020a9  w      .debug_info	00000000 .hidden insomniac.c.f39a18d5
 20000008 g       .data	00000000 _edata
-00000c20 g       .dlalign	00000000 _data_lma
-20000118 g     O .bss	0000005c rv003usb_internal_data
-00000270 g     F .text	00000002 DMA1_Channel2_IRQHandler
-000001fe g     F .text	00000072 handle_reset
-00000270 g     F .text	00000002 FLASH_IRQHandler
-00000270 g     F .text	00000002 USART1_IRQHandler
-00000280  w    F .text	00000012 strlen
-00000270 g     F .text	00000002 I2C1_ER_IRQHandler
+00000e18 g       .dlalign	00000000 _data_lma
+20000014 g     O .bss	0000005c rv003usb_internal_data
+000000f8 g     F .text	00000024 .hidden __modsi3
+0000042e g     F .text	00000002 DMA1_Channel2_IRQHandler
+000003bc g     F .text	00000072 handle_reset
+0000042e g     F .text	00000002 FLASH_IRQHandler
+0000042e g     F .text	00000002 USART1_IRQHandler
+0000043e  w    F .text	00000012 strlen
+0000042e g     F .text	00000002 I2C1_ER_IRQHandler
 
 
