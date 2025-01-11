@@ -1,5 +1,10 @@
 /******************************************************************************
+* Insomiac Mouse Emulator
+* Connects over USB as a generic HID Mouse, then moves continuously to keep
+* PCs awake, or just to waste some time watching it dance!
+* See the GitHub:
 *
+* ADBeta (c) 2025    11 Jan 2025    Ver1.0
 ******************************************************************************/
 #include "ch32v003fun.h"
 #include "rv003usb.h"
@@ -62,7 +67,6 @@ md_buffer_status_t md_buffer_push(const mouse_delta_t mdv);
 /// @return Mouse Delta Status
 md_buffer_status_t md_buffer_pop(mouse_delta_t *mdp);
 
-
 /// @brief Plots movement to a given co-ordinate point. Appends the movement
 /// data to the circuilar buffer to be dispatched to the USB Interrupt
 /// @param postion_t endpoint to plot to. Contains X/Y data, can be positive
@@ -76,19 +80,21 @@ int main(void)
 {
 	SystemInit();
 
-	// TODO:
-	seed(0x12345678);
+	// Grab two words from the near-top of RAM - Should be uninitialised noise
+	uint32_t ram_val =   *((volatile uint32_t*)0x20000700) 
+		               ^ *((volatile uint32_t*)0x200007AA);
+	// Set the LFSR Seed to the RAM Value, provided it is not 0x00.. or 0xFF..
+	if(ram_val != 0x00000000 && ram_val != 0xFFFFFFFF)
+		seed(ram_val);
 
 	// Ensures USB re-enumeration after bootloader or reset
 	Delay_Ms(1); 
-	//usb_setup();
+	usb_setup();
 
 	while(1) 
 	{
-		printf("%d\n", (int16_t)rand());
-		//Delay_Ms(50);
+		//printf("%d\n", int_rand());
 
-		/*
 		// Wait for the flag that the buffer is empty
 		if(g_buffer_empty_flag)
 		{
@@ -100,8 +106,8 @@ int main(void)
 			// Reset the flag
 			g_buffer_empty_flag = 0x00;
 		}
-		*/
-	}
+
+	} // end of loop
 }
 
 
@@ -160,12 +166,13 @@ void usb_handle_user_in_request( struct usb_endpoint * e, uint8_t * scratchpad, 
 /*** Functions ***************************************************************/
 int16_t int_rand(void)
 {
-	// Generate a number between 0 - 200, then subtract 100 to get it in the
-	// correct range (-100 <-> 100)
-	int16_t rand_num = 0x7FFF; // Max Value
-	while(rand_num > 500) rand_num = rand() & 0x00FF;
-	
-	return rand_num - 250;
+	// Generate a number between 0 - 250, then subtract 125 to get it in the
+	// correct range (-125 <-> 125)
+	int16_t rand_num = 0x7FFF;
+    while(rand_num > 250)
+		rand_num = rand() & 0x00FF;
+    
+    return rand_num - 125;
 }
 
 
