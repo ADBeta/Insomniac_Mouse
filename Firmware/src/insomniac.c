@@ -2,14 +2,15 @@
 * Insomiac Mouse Emulator
 * Connects over USB as a generic HID Mouse, then moves continuously to keep
 * PCs awake, or just to waste some time watching it dance!
-* See the GitHub:
+* See the GitHub: https://github.com/ADBeta/Insomniac_Mouse
 *
-* ADBeta (c) 2025    11 Jan 2025    Ver1.0
+* ADBeta (c) 2025    12 Jan 2025    Ver1.0.1
 ******************************************************************************/
 #include "ch32v003fun.h"
 #include "rv003usb.h"
 #include "lib_rand.h"
 #include <stdio.h>
+
 
 /*** Types and Definitions ***************************************************/
 /// @brief A C-ordinate position struct, X/Y Data can be positive or negative
@@ -34,9 +35,12 @@ typedef enum {
 	MD_BUFFER_NO_DATA               // No Data to read from the buffer
 } md_buffer_status_t;
 
+// User Settings
+typedef enum { USER_DISTANCE_125 = 0,  USER_DISTANCE_250 = 1 } user_distance_t;
+
 /*** Globals *****************************************************************/
 // Ring Buffer Variables
-#define                 MD_BUFFER_SIZE   256
+#define                 MD_BUFFER_SIZE   512
 static mouse_delta_t    g_md_buffer[MD_BUFFER_SIZE];
 volatile uint32_t       g_md_buffer_head = 0;
 volatile uint32_t       g_md_buffer_tail = 0;
@@ -46,13 +50,17 @@ volatile uint32_t       g_md_buffer_tail = 0;
 // 0x01 Empty
 volatile uint8_t        g_buffer_empty_flag = 0x00;
 
+// User Settings Flags
+static user_distance_t   g_user_distance     = USER_DISTANCE_250;
+
+
 /*** Forward Declarations ****************************************************/
 /// @brief Efficient Implimentation of an integer abs() function
 /// @param input x
 /// @param output abs(x)
 uint32_t int_abs(const int32_t x);
 
-/// @brief Generates a random signed integer, limited to an upper number
+/// @brief Generates a random signed integer, limited to a maximum range
 /// @param None
 /// @return int16_t integer
 int16_t int_rand(void);
@@ -84,16 +92,23 @@ int main(void)
 	uint32_t ram_val =   *((volatile uint32_t*)0x20000700) 
 		               ^ *((volatile uint32_t*)0x200007AA);
 	// Set the LFSR Seed to the RAM Value, provided it is not 0x00.. or 0xFF..
+	// If this doesn't seed the default will be used
 	if(ram_val != 0x00000000 && ram_val != 0xFFFFFFFF)
 		seed(ram_val);
+
+
+	// TODO: Read the jumper values to change settings
+
 
 	// Ensures USB re-enumeration after bootloader or reset
 	Delay_Ms(1); 
 	usb_setup();
 
+
+
 	while(1) 
 	{
-		//printf("%d\n", int_rand());
+		printf("%d\n", int_rand());
 
 		// Wait for the flag that the buffer is empty
 		if(g_buffer_empty_flag)
@@ -165,19 +180,37 @@ void usb_handle_user_in_request( struct usb_endpoint * e, uint8_t * scratchpad, 
 /*** Functions ***************************************************************/
 int16_t int_rand(void)
 {
-	// Generate a number between 0 - 250, then subtract 125 to get it in the
-	// correct range (-125 <-> 125)
+	// Generate a number between 0 - MAXIMUM, then subtract MAXIMUM/2 to get 
+	// it in the correct range
 	int16_t rand_num = 0x7FFF;
-    while(rand_num > 250)
-		rand_num = rand() & 0x00FF;
-    
-    return rand_num - 125;
+
+	// Generate different Ranges based on user setup
+	switch(g_user_distance)
+	{
+		case USER_DISTANCE_125:
+			while(rand_num > 250) rand_num = rand() & 0x00FF;
+			rand_num -= 125;
+			break;
+		
+		case USER_DISTANCE_250:
+			while(rand_num > 500) rand_num = rand() & 0x01FF;
+			rand_num -= 250;
+			break;
+
+		default:
+			rand_num = 0x00;
+			break;
+	}
+
+    return rand_num;
 }
 
 
 uint32_t int_abs(const int32_t x)
 {
-	uint32_t mask = x >> 31; // Extract the sign bit
+	// Extract the sign bit
+	uint32_t mask = x >> 31;
+	// Invert the 2's compliment
 	return (x ^ mask) - mask;
 }
 
@@ -185,7 +218,7 @@ uint32_t int_abs(const int32_t x)
 md_buffer_status_t md_buffer_push(const mouse_delta_t mdv)
 {
 	// Calculate the next head position
-	size_t next_head = (g_md_buffer_head + 1) % MD_BUFFER_SIZE;
+	uint32_t next_head = (g_md_buffer_head + 1) % MD_BUFFER_SIZE;
 	// If there is no space left in the buffer, reject incomming data
 	if(next_head == g_md_buffer_tail) return MD_BUFFER_NO_SPACE;
 
