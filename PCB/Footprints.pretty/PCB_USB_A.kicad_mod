@@ -17,9 +17,10 @@
 			)
 		)
 	)
-	(property "Value" ""
-		(at -0.0508 4.8768 0)
+	(property "Value" "Val**"
+		(at -0.0508 -6.477 0)
 		(layer "B.SilkS")
+		(hide yes)
 		(uuid "f137c9b2-66de-43c3-afcd-42313c8c30a4")
 		(effects
 			(font
@@ -127,25 +128,25 @@
 		(layer "Edge.Cuts")
 		(uuid "e3c667f7-3d1f-49b2-8292-54ffd56a6951")
 	)
-	(pad "5V" smd rect
+	(pad "1" smd rect
 		(at -0.19812 3.49758)
 		(size 7.49808 1.4986)
 		(layers "F.Cu" "F.Paste" "F.Mask")
 		(uuid "973d0940-a642-407b-b2e4-4f567987bd46")
 	)
-	(pad "D+" smd rect
-		(at 0.29972 -0.99822)
-		(size 6.49986 0.99822)
-		(layers "F.Cu" "F.Paste" "F.Mask")
-		(uuid "68c4afd3-3bb8-482c-85aa-686d1fa47bc5")
-	)
-	(pad "D-" smd rect
+	(pad "2" smd rect
 		(at 0.29972 0.99822)
 		(size 6.49986 0.99822)
 		(layers "F.Cu" "F.Paste" "F.Mask")
 		(uuid "550c0db0-1fe9-439f-8a4e-dc0220290a50")
 	)
-	(pad "GND" smd rect
+	(pad "3" smd rect
+		(at 0.29972 -0.99822)
+		(size 6.49986 0.99822)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "68c4afd3-3bb8-482c-85aa-686d1fa47bc5")
+	)
+	(pad "4" smd rect
 		(at -0.19812 -3.49758)
 		(size 7.49808 1.4986)
 		(layers "F.Cu" "F.Paste" "F.Mask")

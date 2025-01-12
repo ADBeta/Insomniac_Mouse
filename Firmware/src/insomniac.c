@@ -36,7 +36,7 @@ typedef enum {
 } md_buffer_status_t;
 
 // User Settings
-typedef enum { USER_DISTANCE_125 = 0,  USER_DISTANCE_250 = 1 } user_distance_t;
+typedef enum { USER_DISTANCE_125 = 0,  USER_DISTANCE_60 = 1 } user_distance_t;
 
 /*** Globals *****************************************************************/
 // Ring Buffer Variables
@@ -51,7 +51,7 @@ volatile uint32_t       g_md_buffer_tail = 0;
 volatile uint8_t        g_buffer_empty_flag = 0x00;
 
 // User Settings Flags
-static user_distance_t   g_user_distance     = USER_DISTANCE_250;
+static user_distance_t   g_user_distance     = USER_DISTANCE_125;
 
 
 /*** Forward Declarations ****************************************************/
@@ -108,7 +108,8 @@ int main(void)
 
 	while(1) 
 	{
-		printf("%d\n", int_rand());
+		// NOTE: Prints random values to evaluate random number algorithm
+		// printf("%d\n", int_rand());
 
 		// Wait for the flag that the buffer is empty
 		if(g_buffer_empty_flag)
@@ -192,9 +193,9 @@ int16_t int_rand(void)
 			rand_num -= 125;
 			break;
 		
-		case USER_DISTANCE_250:
-			while(rand_num > 500) rand_num = rand() & 0x01FF;
-			rand_num -= 250;
+		case USER_DISTANCE_60:
+			while(rand_num > 120) rand_num = rand() & 0x07F;
+			rand_num -= 60;
 			break;
 
 		default:
