@@ -4,6 +4,13 @@
 * PCs awake, or just to waste some time watching it dance!
 * See the GitHub: https://github.com/ADBeta/Insomniac_Mouse
 *
+* Pinout:
+* 	USB+   PC1
+* 	USB-   PC2
+* 	JP1    PA2
+* 	JP2    PA1
+* 	JP3    PC4
+*
 * ADBeta (c) 2025    12 Jan 2025    Ver1.0.1
 ******************************************************************************/
 #include "ch32v003fun.h"
@@ -97,13 +104,32 @@ int main(void)
 		seed(ram_val);
 
 
-	// TODO: Read the jumper values to change settings
+	// Enable the GPIO Channels
+	RCC->APB2PCENR |= RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOC;
+
+	// Clear PA1 PA2 and PC4, set them to Push/Pull, then write them HIGH
+	// INPUT_PULLUP
+	GPIOA->CFGLR &= ~((0x0000000F << 4) | (0x0000000F << 8));
+	GPIOA->CFGLR |=  ((GPIO_CFGLR_IN_PUPD << 4) | (GPIO_CFGLR_IN_PUPD << 8));
+	GPIOA->OUTDR |=  ((0x01 << 1) | (0x01 << 2));
+
+	GPIOC->CFGLR &= ~(0x0000000F << 16);
+	GPIOC->CFGLR |=  (GPIO_CFGLR_IN_PUPD << 16);
+	GPIOC->OUTDR |=  (0x01 << 4);
+
+	// Read the input states and set settings
+	// Change Disatance (Default +-125) if JP1 Set
+	if(!(GPIOA->INDR & (0x01 << 2)))      // JP1 PA2
+		g_user_distance = USER_DISTANCE_60;
+
+	//GPIOA->INDR & (0x01 << 1); // JP2 PA1
+	//GPIOC->INDR & (0x01 << 4); // JP3 PC4
 
 
+	printf("s:%d\n", g_user_distance);
 	// Ensures USB re-enumeration after bootloader or reset
 	Delay_Ms(1); 
 	usb_setup();
-
 
 
 	while(1) 

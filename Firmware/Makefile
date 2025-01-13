@@ -99,6 +99,8 @@ unbrick:
 	$(MINICHLINK) -u
 
 flash: $(BUILD_DIR)/$(TARGET).bin
+	# Disable NRST (PC4)
+	$(MINICHLINK) -D
 	$(MINICHLINK) -w $< flash -b
 
 clean:
