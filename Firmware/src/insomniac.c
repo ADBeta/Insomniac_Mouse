@@ -130,7 +130,7 @@ int main(void)
 void usb_handle_user_in_request( struct usb_endpoint * e, uint8_t * scratchpad, int endp, uint32_t sendtok, struct rv003usb_internal * ist )
 {
 	static mouse_delta_t mouse_delta;
-	
+
 	// Handle the USB Mouse messages
 	if(endp == 1)
 	{

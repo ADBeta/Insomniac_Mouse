@@ -19,8 +19,15 @@ mouse to move.
 ```
 
 ## PCB Specification
+A 2.0mm PCB is preffered, but due to high cost, 1.6mm PCBs will work fine,
+especially with an added shim of plastic on the rear of the board.  
+Designed with Simplicity and solderability in mind, this PCB is easy to
+hand-solder, or reflow using a hotplate or hot-air gun.
 
 ## Partslist
+```
+
+```
 
 ## CHANGELOG
 * V1.0.1 - Fixed a compatability issue with Windows
