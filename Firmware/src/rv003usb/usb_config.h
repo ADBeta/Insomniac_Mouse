@@ -4,11 +4,10 @@
 //Defines the number of endpoints for this device. (Always add one for EP0). For two EPs, this should be 3.
 #define ENDPOINTS 2
 
-#define USB_PORT     D   // [A,C,D] GPIO Port to use with D+, D- and DPU
-#define USB_PIN_DP   4   // [0-4] GPIO Number for USB D+ Pin
-#define USB_PIN_DM   3   // [0-4] GPIO Number for USB D- Pin
-// TODO:
-#define USB_PIN_DPU  2   // [0-7] GPIO for feeding the 1.5k Pull-Up on USB D- Pin; Comment out if not used / tied to 3V3!
+#define USB_PORT     C   // [A,C,D] GPIO Port to use with D+, D- and DPU
+#define USB_PIN_DP   1   // [0-4] GPIO Number for USB D+ Pin
+#define USB_PIN_DM   2   // [0-4] GPIO Number for USB D- Pin
+//#define USB_PIN_DPU  2   // [0-7] GPIO for feeding the 1.5k Pull-Up on USB D- Pin; Comment out if not used / tied to 3V3!
 
 #define RV003USB_OPTIMIZE_FLASH      1
 #define RV003USB_EVENT_DEBUGGING     0
