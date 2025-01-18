@@ -72,15 +72,26 @@ uint32_t int_abs(const int32_t x);
 /// @return int16_t integer
 int16_t int_rand(void);
 
-/// @brief Mouse Delta Ring Buffer Push
+/// @brief Mouse Delta Ring Buffer Push (Puts data in the buffer)
 /// @param Mouse Delta Value
 /// @return Mouse Delta Status
 md_buffer_status_t md_buffer_push(const mouse_delta_t mdv);
 
-/// @brief Mouse Delta Ring Buffer Pop
+/// @brief Mouse Delta Ring Buffer Pop (Pulls off data from buffer)
 /// @param Mouse Delta Pointer
 /// @return Mouse Delta Status
 md_buffer_status_t md_buffer_pop(mouse_delta_t *mdp);
+
+/// @brief Mouse Delta Ring Buffer Peek (Reads value without incrimenting)
+/// @param Mouse Delta Pointer
+/// @return Mouse Delta Status
+md_buffer_status_t md_buffer_peek(mouse_delta_t *mdp);
+
+/// @brief Mouse Delta Ring Buffer Skip (Skip current buffer data)
+/// @param None
+/// @return Mouse Delta Status
+md_buffer_status_t md_buffer_skip(void);
+
 
 /// @brief Plots movement to a given co-ordinate point. Appends the movement
 /// data to the circuilar buffer to be dispatched to the USB Interrupt
@@ -122,11 +133,6 @@ int main(void)
 	if(!(GPIOA->INDR & (0x01 << 2)))      // JP1 PA2
 		g_user_distance = USER_DISTANCE_60;
 
-	//GPIOA->INDR & (0x01 << 1); // JP2 PA1
-	//GPIOC->INDR & (0x01 << 4); // JP3 PC4
-
-
-	printf("s:%d\n", g_user_distance);
 	// Ensures USB re-enumeration after bootloader or reset
 	Delay_Ms(1); 
 	usb_setup();
@@ -268,6 +274,25 @@ md_buffer_status_t md_buffer_pop(mouse_delta_t *mdp)
 	// Update the Tail Position
 	g_md_buffer_tail = (g_md_buffer_tail + 1) % MD_BUFFER_SIZE;
 
+	return MD_BUFFER_OK;
+}
+
+
+md_buffer_status_t md_buffer_peek(mouse_delta_t *mdp)
+{
+	// Exit if there is no more data to be popped off
+	if(g_md_buffer_head == g_md_buffer_tail) return MD_BUFFER_NO_DATA;
+	// Set the data pointer from the buffer
+	*mdp = g_md_buffer[g_md_buffer_tail];
+
+	return MD_BUFFER_OK;
+}
+
+
+md_buffer_status_t md_buffer_skip(void)
+{
+	// Update the Tail Position
+	g_md_buffer_tail = (g_md_buffer_tail + 1) % MD_BUFFER_SIZE;
 	return MD_BUFFER_OK;
 }
 
