@@ -26,31 +26,31 @@ typedef struct {
 	int16_t          y;
 } position_t;
 
-/// @brief Remapping of a uint8_t to movement type, 2 nibbles
+/// @brief Remapping of a uint8_t to movement instruction, 2 nibbles
 /// [Up    /   Down]  [Left  /  Right]
 ///  1100      0011    1100      0011
-typedef uint8_t mouse_delta_t;
+typedef uint8_t mouse_instr_t;
 
-#define MOUSE_DELTA_U      0b11000000
-#define MOUSE_DELTA_D      0b00110000
-#define MOUSE_DELTA_L      0b00001100
-#define MOUSE_DELTA_R      0b00000011
+#define MOUSE_INSTR_U      0b11000000
+#define MOUSE_INSTR_D      0b00110000
+#define MOUSE_INSTR_L      0b00001100
+#define MOUSE_INSTR_R      0b00000011
 
 typedef enum {
-	MD_BUFFER_OK             = 0,
-	MD_BUFFER_NO_SPACE,             // No Space to append to buffer
-	MD_BUFFER_NO_DATA               // No Data to read from the buffer
-} md_buffer_status_t;
+	MI_BUFFER_OK             = 0,
+	MI_BUFFER_NO_SPACE,             // No Space to append to buffer
+	MI_BUFFER_NO_DATA               // No Data to read from the buffer
+} mi_buffer_status_t;
 
 // User Settings
 typedef enum { USER_DISTANCE_125 = 0,  USER_DISTANCE_60 = 1 } user_distance_t;
 
 /*** Globals *****************************************************************/
 // Ring Buffer Variables
-#define                 MD_BUFFER_SIZE   512
-static mouse_delta_t    g_md_buffer[MD_BUFFER_SIZE];
-volatile uint32_t       g_md_buffer_head = 0;
-volatile uint32_t       g_md_buffer_tail = 0;
+#define                 MI_BUFFER_SIZE   512
+static mouse_instr_t    g_mi_buffer[MI_BUFFER_SIZE];
+volatile uint32_t       g_mi_buffer_head = 0;
+volatile uint32_t       g_mi_buffer_tail = 0;
 
 // Buffer is ready for another movement flag.
 // 0x00 Not Empty
@@ -72,33 +72,35 @@ uint32_t int_abs(const int32_t x);
 /// @return int16_t integer
 int16_t int_rand(void);
 
-/// @brief Mouse Delta Ring Buffer Push (Puts data in the buffer)
-/// @param Mouse Delta Value
-/// @return Mouse Delta Status
-md_buffer_status_t md_buffer_push(const mouse_delta_t mdv);
+/// @brief Mouse Instruction Ring Buffer Push (Puts data in the buffer)
+/// @param Mouse Instruction
+/// @return Mouse Instruction Status
+mi_buffer_status_t mi_buffer_push(const mouse_instr_t inst);
 
-/// @brief Mouse Delta Ring Buffer Pop (Pulls off data from buffer)
-/// @param Mouse Delta Pointer
-/// @return Mouse Delta Status
-md_buffer_status_t md_buffer_pop(mouse_delta_t *mdp);
+/// @brief Mouse Instruction Ring Buffer Pop (Pulls off data from buffer)
+/// @param Mouse Instruction Pointer
+/// @return Mouse Instruction Status
+mi_buffer_status_t mi_buffer_pop(mouse_instr_t *instr);
 
-/// @brief Mouse Delta Ring Buffer Peek (Reads value without incrimenting)
-/// @param Mouse Delta Pointer
-/// @return Mouse Delta Status
-md_buffer_status_t md_buffer_peek(mouse_delta_t *mdp);
+/// @brief Mouse Instruction Ring Buffer Peek (Reads value without incrimenting)
+/// @param Mouse Instruction Pointer
+/// @return Mouse Instruction Status
+mi_buffer_status_t mi_buffer_peek(mouse_instr_t *instr);
 
-/// @brief Mouse Delta Ring Buffer Skip (Skip current buffer data)
+/// @brief Mouse Instruction Ring Buffer Skip (Skip current buffer data)
 /// @param None
-/// @return Mouse Delta Status
-md_buffer_status_t md_buffer_skip(void);
-
+/// @return Mouse Instruction Status
+mi_buffer_status_t mi_buffer_skip(void);
 
 /// @brief Plots movement to a given co-ordinate point. Appends the movement
 /// data to the circuilar buffer to be dispatched to the USB Interrupt
 /// @param postion_t endpoint to plot to. Contains X/Y data, can be positive
 /// or negative
-/// @return md_buffer_state to mirror if the buffer is full
-md_buffer_status_t move_to_endpoint(const position_t endpoint);
+/// @return Mouse Inscription buffer status - if push fails
+mi_buffer_status_t move_to_endpoint(const position_t endpoint);
+
+/// @brief sets HID mouse bytes from an input Mouse Movement Instruction 
+void set_mouse_bytes(uint8_t *buffer, mouse_instr_t instr);
 
 
 /*** Main ********************************************************************/
@@ -161,52 +163,63 @@ int main(void)
 // rv003usb HID Function
 void usb_handle_user_in_request( struct usb_endpoint * e, uint8_t * scratchpad, int endp, uint32_t sendtok, struct rv003usb_internal * ist )
 {
-	static mouse_delta_t mouse_delta;
+	static mouse_instr_t crnt_mouse_instr;
+	static mouse_instr_t next_mouse_instr;
 
 	// Handle the USB Mouse messages
 	if(endp == 1)
 	{
-		// Define an empty mouse data array
-		uint8_t mouse_data[4] = {0x00, 0x00, 0x00, 0x00};
+		// Define an empty mouse bytes array
+		uint8_t mouse_bytes[4] = {0x00, 0x00, 0x00, 0x00};
 
-		// Modify the buffer if there is data ready in the Mouse Delta Buffer 
-		if(md_buffer_pop(&mouse_delta) == MD_BUFFER_OK)
+		// Get the current and next data chunks
+		mi_buffer_status_t crnt_buffer_status = mi_buffer_pop(&crnt_mouse_instr);
+		mi_buffer_status_t next_buffer_status = mi_buffer_pop(&next_mouse_instr);
+
+		// If the current status is not OK, set the empty flag, and send 0x00s
+		if(crnt_buffer_status != MI_BUFFER_OK)
+		{
+			g_buffer_empty_flag = 0x01;
+		}
+
+		// If current is OK, set the mouse_data buffer
+		else 
 		{
 			// signed 8 bit ints for movement, using Unsigned representation
 			// [1] is (0xFF)L  (0x01)R
 			// [2] is (0xFF)U  (0x01)D
-
-			switch(mouse_delta)
+			switch(crnt_mouse_instr)
 			{
-				case MOUSE_DELTA_L:
-					mouse_data[1] = 0xFF;
+				case MOUSE_INSTR_L:
+					mouse_bytes[1] = 0xFF;
 					break;
-				case MOUSE_DELTA_R:
-					mouse_data[1] = 0x01;
+				case MOUSE_INSTR_R:
+					mouse_bytes[1] = 0x01;
 					break;
 
-				case MOUSE_DELTA_U:
-					mouse_data[2] = 0xFF;
+				case MOUSE_INSTR_U:
+					mouse_bytes[2] = 0xFF;
 					break;
-				case MOUSE_DELTA_D:
-					mouse_data[2] = 0x01;
+				case MOUSE_INSTR_D:
+					mouse_bytes[2] = 0x01;
 					break;
 			}
 		}
-		else
-		{
-			// Flag that the buffer is ready for new movement data
-			g_buffer_empty_flag = 0x01;
-		}
 
 		// Send the data to the USB Controller - Either 0x00's or has Delta data
-		usb_send_data(mouse_data, 4, 0, sendtok);
+		usb_send_data(mouse_bytes, 4, 0, sendtok);
 	}
 	else
 	{
 		// If it's a control transfer, empty it.
 		usb_send_empty(sendtok);
 	}
+}
+
+
+void set_mouse_instr_bytes(uint8_t *buffer, mouse_instr_t instr)
+{
+
 }
 
 
@@ -248,58 +261,58 @@ uint32_t int_abs(const int32_t x)
 }
 
 
-md_buffer_status_t md_buffer_push(const mouse_delta_t mdv)
+mi_buffer_status_t mi_buffer_push(const mouse_instr_t instr)
 {
 	// Calculate the next head position
-	uint32_t next_head = (g_md_buffer_head + 1) % MD_BUFFER_SIZE;
+	uint32_t next_head = (g_mi_buffer_head + 1) % MI_BUFFER_SIZE;
 	// If there is no space left in the buffer, reject incomming data
-	if(next_head == g_md_buffer_tail) return MD_BUFFER_NO_SPACE;
+	if(next_head == g_mi_buffer_tail) return MI_BUFFER_NO_SPACE;
 
 	// Append the data to the current head position
-	g_md_buffer[g_md_buffer_head] = mdv;
+	g_mi_buffer[g_mi_buffer_head] = instr;
 	// Update the current head position
-	g_md_buffer_head = next_head;
+	g_mi_buffer_head = next_head;
 
-	return MD_BUFFER_OK;
+	return MI_BUFFER_OK;
 }
 
 
-md_buffer_status_t md_buffer_pop(mouse_delta_t *mdp)
+mi_buffer_status_t mi_buffer_pop(mouse_instr_t *instr)
 {
 	// Exit if there is no more data to be popped off
-	if(g_md_buffer_head == g_md_buffer_tail) return MD_BUFFER_NO_DATA;
+	if(g_mi_buffer_head == g_mi_buffer_tail) return MI_BUFFER_NO_DATA;
 	// Set the data pointer from the buffer
-	*mdp = g_md_buffer[g_md_buffer_tail];
+	*instr = g_mi_buffer[g_mi_buffer_tail];
 
 	// Update the Tail Position
-	g_md_buffer_tail = (g_md_buffer_tail + 1) % MD_BUFFER_SIZE;
+	g_mi_buffer_tail = (g_mi_buffer_tail + 1) % MI_BUFFER_SIZE;
 
-	return MD_BUFFER_OK;
+	return MI_BUFFER_OK;
 }
 
 
-md_buffer_status_t md_buffer_peek(mouse_delta_t *mdp)
+mi_buffer_status_t mi_buffer_peek(mouse_instr_t *instr)
 {
 	// Exit if there is no more data to be popped off
-	if(g_md_buffer_head == g_md_buffer_tail) return MD_BUFFER_NO_DATA;
+	if(g_mi_buffer_head == g_mi_buffer_tail) return MI_BUFFER_NO_DATA;
 	// Set the data pointer from the buffer
-	*mdp = g_md_buffer[g_md_buffer_tail];
+	*instr = g_mi_buffer[g_mi_buffer_tail];
 
-	return MD_BUFFER_OK;
+	return MI_BUFFER_OK;
 }
 
 
-md_buffer_status_t md_buffer_skip(void)
+mi_buffer_status_t mi_buffer_skip(void)
 {
 	// Update the Tail Position
-	g_md_buffer_tail = (g_md_buffer_tail + 1) % MD_BUFFER_SIZE;
-	return MD_BUFFER_OK;
+	g_mi_buffer_tail = (g_mi_buffer_tail + 1) % MI_BUFFER_SIZE;
+	return MI_BUFFER_OK;
 }
 
 
-md_buffer_status_t move_to_endpoint(const position_t endpoint)
+mi_buffer_status_t move_to_endpoint(const position_t endpoint)
 {
-	md_buffer_status_t md_return = MD_BUFFER_OK;
+	mi_buffer_status_t mi_return = MI_BUFFER_OK;
  
 	position_t startpoint = {0, 0};
 
@@ -328,9 +341,9 @@ md_buffer_status_t move_to_endpoint(const position_t endpoint)
 			startpoint.x += x_step;
 
 			// Push Left or Right instructions to the Mouse Delta Buffer
-			md_return = md_buffer_push( (x_step > 0) ? MOUSE_DELTA_R : MOUSE_DELTA_L);
+			mi_return = mi_buffer_push( (x_step > 0) ? MOUSE_INSTR_R : MOUSE_INSTR_L);
 			// If the buffer is full, exit early
-			if(md_return != MD_BUFFER_OK)  return md_return;
+			if(mi_return != MI_BUFFER_OK)  return mi_return;
 		}
 
 		// Step in the Y direction - add the horizontal error to account for
@@ -341,11 +354,11 @@ md_buffer_status_t move_to_endpoint(const position_t endpoint)
 			startpoint.y += y_step;
 
 			// Push Up and Down Instructions to the Mouse Delta Buffer
-			md_return = md_buffer_push( (y_step > 0) ? MOUSE_DELTA_U : MOUSE_DELTA_D);
+			mi_return = mi_buffer_push( (y_step > 0) ? MOUSE_INSTR_U : MOUSE_INSTR_D);
 			// If the buffer is full, exit early
-			if(md_return != MD_BUFFER_OK)  return md_return;
+			if(mi_return != MI_BUFFER_OK)  return mi_return;
 		}
 	}
 
-	return md_return;
+	return mi_return;
 }
