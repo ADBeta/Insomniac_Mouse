@@ -214,7 +214,6 @@ void usb_handle_user_in_request( struct usb_endpoint * e, uint8_t * scratchpad, 
 		}
 		
 
-
 		// Send the data to the USB Controller - Either 0x00's or has Delta data
 		usb_send_data(mouse_bytes, 4, 0, sendtok);
 	}
