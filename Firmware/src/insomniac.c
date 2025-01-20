@@ -11,7 +11,7 @@
 * 	JP2    PA1
 * 	JP3    PC4
 *
-* ADBeta (c) 2025    14 Jan 2025    Ver1.1.0
+* ADBeta (c) 2025    20 Jan 2025    Ver1.2.0
 ******************************************************************************/
 #include "ch32v003fun.h"
 #include "rv003usb.h"
@@ -99,8 +99,11 @@ mi_buffer_status_t mi_buffer_skip(void);
 /// @return Mouse Inscription buffer status - if push fails
 mi_buffer_status_t move_to_endpoint(const position_t endpoint);
 
-/// @brief sets HID mouse bytes from an input Mouse Movement Instruction 
-void set_mouse_bytes(uint8_t *buffer, mouse_instr_t instr);
+/// @brief sets HID mouse bytes from an input Mouse Movement Instruction
+/// @param buffer to modify
+/// @param instruction to parse
+/// @return None
+void set_mouse_instr_bytes(uint8_t *buffer, mouse_instr_t instr);
 
 
 /*** Main ********************************************************************/
@@ -174,37 +177,43 @@ void usb_handle_user_in_request( struct usb_endpoint * e, uint8_t * scratchpad, 
 
 		// Get the current and next data chunks
 		mi_buffer_status_t crnt_buffer_status = mi_buffer_pop(&crnt_mouse_instr);
-		mi_buffer_status_t next_buffer_status = mi_buffer_pop(&next_mouse_instr);
+		mi_buffer_status_t next_buffer_status = mi_buffer_peek(&next_mouse_instr);
 
-		// If the current status is not OK, set the empty flag, and send 0x00s
-		if(crnt_buffer_status != MI_BUFFER_OK)
+		// If the current status is OK, set the data bytes
+		if(crnt_buffer_status == MI_BUFFER_OK)
+		{
+			set_mouse_instr_bytes(mouse_bytes, crnt_mouse_instr);
+		}
+
+		// If it's empty, set the flag and leave the buffer unset
+		else
 		{
 			g_buffer_empty_flag = 0x01;
 		}
 
-		// If current is OK, set the mouse_data buffer
-		else 
-		{
-			// signed 8 bit ints for movement, using Unsigned representation
-			// [1] is (0xFF)L  (0x01)R
-			// [2] is (0xFF)U  (0x01)D
-			switch(crnt_mouse_instr)
-			{
-				case MOUSE_INSTR_L:
-					mouse_bytes[1] = 0xFF;
-					break;
-				case MOUSE_INSTR_R:
-					mouse_bytes[1] = 0x01;
-					break;
 
-				case MOUSE_INSTR_U:
-					mouse_bytes[2] = 0xFF;
-					break;
-				case MOUSE_INSTR_D:
-					mouse_bytes[2] = 0x01;
-					break;
+		// If the next instruction is valid, parse it (Allows for diagonal movement)
+		if(next_buffer_status == MI_BUFFER_OK)
+		{
+			// If this instruction is LEFT or RIGHT, and the previous was UP or DOWN,
+			// add this instruction to the data
+			if((next_mouse_instr == MOUSE_INSTR_L || next_mouse_instr == MOUSE_INSTR_R)
+			&& (crnt_mouse_instr == MOUSE_INSTR_U || crnt_mouse_instr == MOUSE_INSTR_D))
+			{
+				set_mouse_instr_bytes(mouse_bytes, next_mouse_instr);
+				mi_buffer_skip();
+			}
+
+			// Likewise with UP and DOWN, append if last instruction was LEFT or RIGHT
+			if((next_mouse_instr == MOUSE_INSTR_U || next_mouse_instr == MOUSE_INSTR_D)
+			&& (crnt_mouse_instr == MOUSE_INSTR_L || crnt_mouse_instr == MOUSE_INSTR_R))
+			{
+				set_mouse_instr_bytes(mouse_bytes, next_mouse_instr);
+				mi_buffer_skip();
 			}
 		}
+		
+
 
 		// Send the data to the USB Controller - Either 0x00's or has Delta data
 		usb_send_data(mouse_bytes, 4, 0, sendtok);
@@ -217,9 +226,27 @@ void usb_handle_user_in_request( struct usb_endpoint * e, uint8_t * scratchpad, 
 }
 
 
-void set_mouse_instr_bytes(uint8_t *buffer, mouse_instr_t instr)
+void set_mouse_instr_bytes(uint8_t buffer[], mouse_instr_t instr)
 {
+	// signed 8 bit ints for movement, using Unsigned representation
+	// [1] is (0xFF)L  (0x01)R
+	// [2] is (0xFF)U  (0x01)D
+	switch(instr)
+	{
+		case MOUSE_INSTR_L:
+			buffer[1] |= 0xFF;
+			break;
+		case MOUSE_INSTR_R:
+			buffer[1] |= 0x01;
+			break;
 
+		case MOUSE_INSTR_U:
+			buffer[2] |= 0xFF;
+			break;
+		case MOUSE_INSTR_D:
+			buffer[2] |= 0x01;
+			break;
+	}
 }
 
 
