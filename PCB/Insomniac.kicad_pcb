@@ -148,7 +148,7 @@
 			)
 		)
 		(property "Value" "AP2112K-3.3"
-			(at -0.00938 2.37758 90)
+			(at -0.00938 5.77758 90)
 			(layer "F.Fab")
 			(uuid "88213757-ab09-4328-9f3d-9fbbffe5860c")
 			(effects
@@ -604,7 +604,7 @@
 			)
 		)
 		(property "Value" "CH32V003"
-			(at -0.02812 8.38242 90)
+			(at -0.02812 12.28242 90)
 			(layer "F.Fab")
 			(uuid "9a07832a-08c5-4136-a144-8ee41c11eb2d")
 			(effects
@@ -921,7 +921,7 @@
 			)
 		)
 		(property "Value" "100nF"
-			(at 2.27758 -0.02812 90)
+			(at 5.67758 -0.02812 90)
 			(layer "F.Fab")
 			(uuid "ed539bbd-6ff5-4bf3-8bb8-b48f5af1cd5d")
 			(effects
@@ -1136,7 +1136,7 @@
 			)
 		)
 		(property "Value" "100nF"
-			(at 2.37758 0.04688 90)
+			(at 5.77758 0.04688 90)
 			(layer "F.Fab")
 			(uuid "b6cb9694-a06b-4c45-bbf5-b1fcf2253f38")
 			(effects
@@ -1351,7 +1351,7 @@
 			)
 		)
 		(property "Value" "1K5"
-			(at 0.02062 -4.74242 90)
+			(at 0.02062 -8.64242 90)
 			(layer "F.Fab")
 			(uuid "81dad676-935c-44c4-9ffa-d360270a396c")
 			(effects

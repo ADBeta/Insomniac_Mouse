@@ -3,6 +3,13 @@ USB HID Mouse Device, which moves randomly to keep PCs awake -
 make games harder to play, annoy co-workers and friends, or to waste time 
 watching it dance!
 
+<div style="display: flex; align-items: center; gap: 10px;">
+  <img src="/images/Schematic.png" alt="Schematic" width="800"><br>
+  <img src="/images/PCB_2D.png" alt="PCB_2D" width="800"><br>
+  <img src="/images/PCB_Front.png" alt="PCB_Front" width="400">
+  <img src="/images/PCB_Back.png" alt="PCB_Back" width="400">
+</div>
+
 ## Firmware
 Using [ch32v003fun](https://github.com/cnlohr/ch32v003fun) and 
 [rv003usb](https://github.com/cnlohr/rv003usb) to create a Software Defined
