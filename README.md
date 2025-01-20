@@ -39,12 +39,11 @@ hand-solder, or reflow using a hotplate or hot-air gun.
 
 ## Partslist
 ```
-U1
-
-C1
-C2
-R1
-
+U1    CH32V003J4M6
+U2    AP2112K-3.3
+C1    0603 100nF MLCC
+C2    0603 100nF MLCC
+R1    0603 1K5
 ```
 
 ## CHANGELOG
