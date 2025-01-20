@@ -4,10 +4,10 @@ make games harder to play, annoy co-workers and friends, or to waste time
 watching it dance!
 
 <div style="display: flex; align-items: center; gap: 10px;">
-  <img src="/images/Schematic.png" alt="Schematic" width="800"><br>
-  <img src="/images/PCB_2D.png" alt="PCB_2D" width="800"><br>
-  <img src="/images/PCB_Front.png" alt="PCB_Front" width="400">
-  <img src="/images/PCB_Back.png" alt="PCB_Back" width="400">
+  <img src="/Images/Schematic.png" alt="Schematic" width="800"><br>
+  <img src="/Images/PCB_2D.png" alt="PCB_2D" width="800"><br>
+  <img src="/Images/PCB_Front.png" alt="PCB_Front" width="400">
+  <img src="/Images/PCB_Back.png" alt="PCB_Back" width="400">
 </div>
 
 ## Firmware
