@@ -57,7 +57,8 @@ R1    0603 1K5
 * V1.2.0 - Added Diagonal Movement for USB HID Data, improves smoothness
 
 ## TODO
-
+* Jitter Mode
+* Random UID on boot
 
 ----
 MIT License
