@@ -17,10 +17,15 @@ mouse to move.
 
 ## Jumpers
 ```
-|   Jumper   |     Effect     |    Open    |   Closed   |
-|     J1     |  MAX_DISTANCE  |    ±125    |    ±250    |
-|     J2     |     UNUSED     |      -     |      -     |
-|     J3     |     UNUSED     |      -     |      -     |
+|    Mode    | J1  | J2  | J3  |        Description        |
+|   Normal   |  0  |  0  |  0  |    ±125 Units Movement    |
+|   Hi-Res   |  0  |  0  |  1  |    ±250 Units Movement    |
+|   Jitter   |  0  |  1  |  0  |    ±25 Units Movement     |
+|   Unused   |  0  |  1  |  1  |                           |
+|   Unused   |  1  |  0  |  0  |                           |
+|   Unused   |  1  |  0  |  1  |                           |
+|   Unused   |  1  |  1  |  0  |                           |
+|   Unused   |  1  |  1  |  1  |                           |
 ```
 
 ## Uses
