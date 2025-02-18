@@ -11,12 +11,12 @@
 * 	JP2    PA1
 * 	JP3    PC4
 *
-* ADBeta (c) 2025    21 Jan 2025    Ver1.2.2
+* ADBeta (c) 2025    18 Feb 2025    Ver1.3.1
 ******************************************************************************/
 #include "ch32v003fun.h"
 #include "rv003usb.h"
 #include "lib_rand.h"
-#include <stdio.h>
+#include <stdio.h>          // TODO: Comment out
 
 
 /*** Types and Definitions ***************************************************/
@@ -26,15 +26,16 @@ typedef struct {
 	int16_t          y;
 } position_t;
 
+
 /// @brief Remapping of a uint8_t to movement instruction, 2 nibbles
 /// [Up    /   Down]  [Left  /  Right]
 ///  1100      0011    1100      0011
 typedef uint8_t mouse_instr_t;
-
 #define MOUSE_INSTR_U      0b11000000
 #define MOUSE_INSTR_D      0b00110000
 #define MOUSE_INSTR_L      0b00001100
 #define MOUSE_INSTR_R      0b00000011
+
 
 typedef enum {
 	MI_BUFFER_OK             = 0,
@@ -42,8 +43,13 @@ typedef enum {
 	MI_BUFFER_NO_DATA               // No Data to read from the buffer
 } mi_buffer_status_t;
 
-// User Settings
-typedef enum { USER_DISTANCE_125 = 0,  USER_DISTANCE_60 = 1 } user_distance_t;
+
+// User Mode Selection from the Jumpers - Reads the jumpers in binary on boot
+typedef enum {
+	USER_MODE_NORMAL     = 0b000,
+	USER_MODE_HI_RES     = 0b001,
+	USER_MODE_JITTER     = 0b010,
+} user_mode_t;
 
 /*** Globals *****************************************************************/
 // Ring Buffer Variables
@@ -58,7 +64,7 @@ volatile uint32_t       g_mi_buffer_tail = 0;
 volatile uint8_t        g_buffer_empty_flag = 0x00;
 
 // User Settings Flags
-static user_distance_t   g_user_distance     = USER_DISTANCE_125;
+static user_mode_t   g_user_mode     = USER_MODE_NORMAL;
 
 
 /*** Forward Declarations ****************************************************/
@@ -120,11 +126,11 @@ int main(void)
 		seed(ram_val);
 
 
+
 	// Enable the GPIO Channels
 	RCC->APB2PCENR |= RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOC;
 
-	// Clear PA1 PA2 and PC4, set them to Push/Pull, then write them HIGH
-	// INPUT_PULLUP
+	// Clear PA1 PA2 and PC4, set them to Push/Pull, then write PULLUP
 	GPIOA->CFGLR &= ~((0x0000000F << 4) | (0x0000000F << 8));
 	GPIOA->CFGLR |=  ((GPIO_CFGLR_IN_PUPD << 4) | (GPIO_CFGLR_IN_PUPD << 8));
 	GPIOA->OUTDR |=  ((0x01 << 1) | (0x01 << 2));
@@ -133,11 +139,13 @@ int main(void)
 	GPIOC->CFGLR |=  (GPIO_CFGLR_IN_PUPD << 16);
 	GPIOC->OUTDR |=  (0x01 << 4);
 
-	// Read the input states and set settings
-	// Change Disatance (Default +-125) if JP1 Set
-	if(!(GPIOA->INDR & (0x01 << 2)))      // JP1 PA2
-		g_user_distance = USER_DISTANCE_60;
-
+	// Read the Jumpers to set the user_mode
+	g_user_mode |= (GPIOA->INDR >> 2) & 0x01;      // JP1 PA2
+	g_user_mode |= (GPIOA->INDR >> 1) & 0x01;      // JP2 PA1
+	g_user_mode |= (GPIOC->INDR >> 4) & 0x01;      // JP1 PC4
+	
+	printf("Mode: %d\n", (uint8_t)g_user_mode);
+	
 	// Ensures USB re-enumeration after bootloader or reset
 	Delay_Ms(1); 
 	usb_setup();
@@ -257,17 +265,21 @@ int16_t int_rand(void)
 	int16_t rand_num = 0x7FFF;
 
 	// Generate different Ranges based on user setup
-	switch(g_user_distance)
+	switch(g_user_mode)
 	{
-		case USER_DISTANCE_125:
+		// +- 125 Units
+		case USER_MODE_NORMAL:
 			while(rand_num > 250) rand_num = rand() & 0x00FF;
 			rand_num -= 125;
 			break;
 		
-		case USER_DISTANCE_60:
+		// +- 250 Units TODO:
+		case USER_MODE_HI_RES:
 			while(rand_num > 120) rand_num = rand() & 0x07F;
 			rand_num -= 60;
 			break;
+
+		// +- 30 Units TODO:
 
 		default:
 			rand_num = 0x00;
