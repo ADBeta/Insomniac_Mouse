@@ -273,13 +273,13 @@ int16_t int_rand(void)
 			rand_num -= 125;
 			break;
 		
-		// +- 250 Units TODO:
+		// +- 250 Units
 		case USER_MODE_HI_RES:
-			while(rand_num > 120) rand_num = rand() & 0x07F;
-			rand_num -= 60;
+			while(rand_num > 500) rand_num = rand() & 0x01FF;
+			rand_num -= 250;
 			break;
 
-		// +- 30 Units TODO:
+		// +- 25 Units TODO:
 
 		default:
 			rand_num = 0x00;
