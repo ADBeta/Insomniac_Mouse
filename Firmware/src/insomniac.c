@@ -144,10 +144,6 @@ int main(void)
 	if(!((GPIOC->INDR >> 4) & 0x01)) g_user_mode |= 0x04;      // JP1 PC4
 
 
-	g_user_mode = USER_MODE_JITTER;
-
-
-
 	// Ensures USB re-enumeration after bootloader or reset
 	Delay_Ms(1); 
 	usb_setup();
