@@ -127,7 +127,7 @@ static const uint8_t config_descriptor[] = {  //Mostly stolen from a USB mouse I
 
 #define STR_MANUFACTURER u"ADBeta"
 #define STR_PRODUCT      u"Insomniac Mouse"
-#define STR_SERIAL       u"001"
+#define STR_SERIAL       u"999"
 
 struct usb_string_descriptor_struct {
 	uint8_t bLength;

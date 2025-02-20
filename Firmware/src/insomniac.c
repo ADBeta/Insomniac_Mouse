@@ -11,12 +11,12 @@
 * 	JP2    PA1
 * 	JP3    PC4
 *
-* ADBeta (c) 2025    18 Feb 2025    Ver1.3.1
+* ADBeta (c) 2025    20 Feb 2025    Ver1.3.2
 ******************************************************************************/
 #include "ch32v003fun.h"
 #include "rv003usb.h"
 #include "lib_rand.h"
-#include <stdio.h>          // TODO: Comment out
+//#include <stdio.h>          // NOTE: Comment out when net debugging
 
 
 /*** Types and Definitions ***************************************************/
@@ -126,7 +126,6 @@ int main(void)
 		seed(ram_val);
 
 
-
 	// Enable the GPIO Channels
 	RCC->APB2PCENR |= RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOC;
 
@@ -140,12 +139,15 @@ int main(void)
 	GPIOC->OUTDR |=  (0x01 << 4);
 
 	// Read the Jumpers to set the user_mode
-	g_user_mode |= (GPIOA->INDR >> 2) & 0x01;      // JP1 PA2
-	g_user_mode |= (GPIOA->INDR >> 1) & 0x01;      // JP2 PA1
-	g_user_mode |= (GPIOC->INDR >> 4) & 0x01;      // JP1 PC4
-	
-	printf("Mode: %d\n", (uint8_t)g_user_mode);
-	
+	if(!((GPIOA->INDR >> 2) & 0x01)) g_user_mode |= 0x01;      // JP1 PA2
+	if(!((GPIOA->INDR >> 1) & 0x01)) g_user_mode |= 0x02;      // JP2 PA1
+	if(!((GPIOC->INDR >> 4) & 0x01)) g_user_mode |= 0x04;      // JP1 PC4
+
+
+	g_user_mode = USER_MODE_JITTER;
+
+
+
 	// Ensures USB re-enumeration after bootloader or reset
 	Delay_Ms(1); 
 	usb_setup();
@@ -154,7 +156,7 @@ int main(void)
 	while(1) 
 	{
 		// NOTE: Prints random values to evaluate random number algorithm
-		// printf("%d\n", int_rand());
+		//printf("%d\n", int_rand());
 
 		// Wait for the flag that the buffer is empty
 		if(g_buffer_empty_flag)
@@ -279,7 +281,11 @@ int16_t int_rand(void)
 			rand_num -= 250;
 			break;
 
-		// +- 25 Units TODO:
+		// +- 25 Units
+		case USER_MODE_JITTER:
+			while(rand_num > 40) rand_num = rand() & 0x003F;
+			rand_num -= 20;
+			break;
 
 		default:
 			rand_num = 0x00;

@@ -20,7 +20,7 @@ mouse to move.
 |    Mode    | J1  | J2  | J3  |        Description        |
 |   Normal   |  0  |  0  |  0  |    ±125 Units Movement    |
 |   Hi-Res   |  0  |  0  |  1  |    ±250 Units Movement    |
-|   Jitter   |  0  |  1  |  0  |    ±25 Units Movement     |
+|   Jitter   |  0  |  1  |  0  |    ±20 Units Movement     |
 |   Unused   |  0  |  1  |  1  |                           |
 |   Unused   |  1  |  0  |  0  |                           |
 |   Unused   |  1  |  0  |  1  |                           |
@@ -55,9 +55,9 @@ R1    0603 1K5
 * V1.0.1 - Fixed a compatability issue with Windows
 * V1.1.2 - Refactor functions and vairable names
 * V1.2.0 - Added Diagonal Movement for USB HID Data, improves smoothness
+* V1.3.2 - Changed Jumper Detection Method & added `JITTER` Mode
 
 ## TODO
-* Jitter Mode
 * Random UID on boot
 
 ----
