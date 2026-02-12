@@ -204,7 +204,8 @@ int main(void)
 			g_buffer_empty_flag = 0x00;
 
 
-
+			if(g_user_mode == USER_MODE_CALM)
+				Delay_Ms(1000);
 		}
 
 	} 
