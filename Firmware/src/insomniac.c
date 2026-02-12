@@ -11,7 +11,7 @@
 * 	JP2    PA1
 * 	JP3    PC4
 *
-* ADBeta (c) 2025    20 Feb 2025    Ver1.3.2
+* ADBeta (c) 2025-2026    12 Feb 2026    Ver1.4.0
 ******************************************************************************/
 #include "ch32v003fun.h"
 #include "rv003usb.h"
@@ -49,7 +49,11 @@ typedef enum {
 	USER_MODE_NORMAL     = 0b000,
 	USER_MODE_HI_RES     = 0b001,
 	USER_MODE_JITTER     = 0b010,
+	USER_MODE_CALM       = 0b011
 } user_mode_t;
+
+
+
 
 /*** Globals *****************************************************************/
 // Ring Buffer Variables
@@ -58,13 +62,16 @@ static mouse_instr_t    g_mi_buffer[MI_BUFFER_SIZE];
 volatile uint32_t       g_mi_buffer_head = 0;
 volatile uint32_t       g_mi_buffer_tail = 0;
 
+
 // Buffer is ready for another movement flag.
 // 0x00 Not Empty
 // 0x01 Empty
 volatile uint8_t        g_buffer_empty_flag = 0x00;
 
+
 // User Settings Flags
 static user_mode_t   g_user_mode     = USER_MODE_NORMAL;
+
 
 
 /*** Forward Declarations ****************************************************/
@@ -73,30 +80,36 @@ static user_mode_t   g_user_mode     = USER_MODE_NORMAL;
 /// @param output abs(x)
 uint32_t int_abs(const int32_t x);
 
+
 /// @brief Generates a random signed integer, limited to a maximum range
 /// @param None
 /// @return int16_t integer
 int16_t int_rand(void);
+
 
 /// @brief Mouse Instruction Ring Buffer Push (Puts data in the buffer)
 /// @param Mouse Instruction
 /// @return Mouse Instruction Status
 mi_buffer_status_t mi_buffer_push(const mouse_instr_t inst);
 
+
 /// @brief Mouse Instruction Ring Buffer Pop (Pulls off data from buffer)
 /// @param Mouse Instruction Pointer
 /// @return Mouse Instruction Status
 mi_buffer_status_t mi_buffer_pop(mouse_instr_t *instr);
+
 
 /// @brief Mouse Instruction Ring Buffer Peek (Reads value without incrimenting)
 /// @param Mouse Instruction Pointer
 /// @return Mouse Instruction Status
 mi_buffer_status_t mi_buffer_peek(mouse_instr_t *instr);
 
+
 /// @brief Mouse Instruction Ring Buffer Skip (Skip current buffer data)
 /// @param None
 /// @return Mouse Instruction Status
 mi_buffer_status_t mi_buffer_skip(void);
+
 
 /// @brief Plots movement to a given co-ordinate point. Appends the movement
 /// data to the circuilar buffer to be dispatched to the USB Interrupt
@@ -105,11 +118,35 @@ mi_buffer_status_t mi_buffer_skip(void);
 /// @return Mouse Inscription buffer status - if push fails
 mi_buffer_status_t move_to_endpoint(const position_t endpoint);
 
+
 /// @brief sets HID mouse bytes from an input Mouse Movement Instruction
 /// @param buffer to modify
 /// @param instruction to parse
 /// @return None
 void set_mouse_instr_bytes(uint8_t *buffer, mouse_instr_t instr);
+
+
+
+
+
+
+#include "rv003usb/usb_config.h"
+
+
+uint8_t usb_serial[USB_SERIAL_BYTES] = {
+	USB_SERIAL_BYTES,    // bLength
+	3,                   // bDescriptorType
+	'F', 0x00,           // wString
+	'E', 0x00,
+	'D', 0x00,
+	'C', 0x00,
+	'B', 0x00,
+	'A', 0x00,
+	'9', 0x00,
+	'8', 0x00,
+};
+
+
 
 
 /*** Main ********************************************************************/
@@ -126,6 +163,7 @@ int main(void)
 		seed(ram_val);
 
 
+	/*** GPIO *******************************************************************/
 	// Enable the GPIO Channels
 	RCC->APB2PCENR |= RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOC;
 
@@ -141,9 +179,10 @@ int main(void)
 	// Read the Jumpers to set the user_mode
 	if(!((GPIOA->INDR >> 2) & 0x01)) g_user_mode |= 0x01;      // JP1 PA2
 	if(!((GPIOA->INDR >> 1) & 0x01)) g_user_mode |= 0x02;      // JP2 PA1
-	if(!((GPIOC->INDR >> 4) & 0x01)) g_user_mode |= 0x04;      // JP1 PC4
+	if(!((GPIOC->INDR >> 4) & 0x01)) g_user_mode |= 0x04;      // JP3 PC4
 
 
+	/*** USB ********************************************************************/
 	// Ensures USB re-enumeration after bootloader or reset
 	Delay_Ms(1); 
 	usb_setup();
@@ -163,9 +202,16 @@ int main(void)
 
 			// Reset the empty flag, waits until it is done moving
 			g_buffer_empty_flag = 0x00;
+
+
+
 		}
 
-	} // end of loop
+	} 
+	// end of loop
+	
+
+	return 0;
 }
 
 
@@ -271,17 +317,26 @@ int16_t int_rand(void)
 			rand_num -= 125;
 			break;
 		
+
 		// +- 250 Units
 		case USER_MODE_HI_RES:
 			while(rand_num > 500) rand_num = rand() & 0x01FF;
 			rand_num -= 250;
 			break;
 
-		// +- 25 Units
+
+		// +- 20 Units
 		case USER_MODE_JITTER:
 			while(rand_num > 40) rand_num = rand() & 0x003F;
 			rand_num -= 20;
 			break;
+
+
+		// +- 1 Units
+		case USER_MODE_CALM:
+			rand_num = (rand() & 0x01) ? 1 : -1;
+			break;
+
 
 		default:
 			rand_num = 0x00;

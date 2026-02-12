@@ -19,12 +19,12 @@ mouse to move.
 ```
 |    Mode    | J1  | J2  | J3  |        Description        |
 |   Normal   |  0  |  0  |  0  |    ±125 Units Movement    |
-|   Hi-Res   |  0  |  0  |  1  |    ±250 Units Movement    |
-|   Jitter   |  0  |  1  |  0  |    ±20 Units Movement     |
-|   Unused   |  0  |  1  |  1  |                           |
-|   Unused   |  1  |  0  |  0  |                           |
+|   Hi-Res   |  1  |  0  |  0  |    ±250 Units Movement    |
+|   Jitter   |  0  |  1  |  0  |     ±20 Units Movement    |
+|    Calm    |  1  |  1  |  0  | ±1 Unit Movement (Slower) |
+|   Unused   |  0  |  0  |  1  |                           |
 |   Unused   |  1  |  0  |  1  |                           |
-|   Unused   |  1  |  1  |  0  |                           |
+|   Unused   |  0  |  1  |  1  |                           |
 |   Unused   |  1  |  1  |  1  |                           |
 ```
 
@@ -56,10 +56,12 @@ R1    0603 1K5
 * V1.1.2 - Refactor functions and vairable names
 * V1.2.0 - Added Diagonal Movement for USB HID Data, improves smoothness
 * V1.3.2 - Changed Jumper Detection Method & added `JITTER` Mode
+* V1.4.0 - Refined the code and added Calm Mode.
 
 ## TODO
-* Random UID on boot
+Random UUID on boot for multiple at once
+
 
 ----
 MIT License
-Copyright (c) 2025 ADBeta
+Copyright (c) 2025-2026 ADBeta

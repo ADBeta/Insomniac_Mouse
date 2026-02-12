@@ -16,9 +16,18 @@
 #define RV003USB_HANDLE_USER_DATA    0
 #define RV003USB_HID_FEATURES        0
 
+
 #ifndef __ASSEMBLER__
 
 #include <tinyusb_hid.h>
+
+
+// NOTE: ADBeta 2026
+// Converted Serial string from a UTF16-LE Defined value to a dynamic byte-array
+#define USB_SERIAL_CHARS      8
+#define USB_SERIAL_BYTES      (2 + (USB_SERIAL_CHARS * 2))
+
+extern uint8_t usb_serial[USB_SERIAL_BYTES];
 
 #ifdef INSTANCE_DESCRIPTORS
 //Taken from http://www.usbmadesimple.co.uk/ums_ms_desc_dev.htm
@@ -127,7 +136,11 @@ static const uint8_t config_descriptor[] = {  //Mostly stolen from a USB mouse I
 
 #define STR_MANUFACTURER u"ADBeta"
 #define STR_PRODUCT      u"Insomniac Mouse"
-#define STR_SERIAL       u"76543210"
+
+// NOTE: ADBeta 2026 
+// Converted Serial string from a UTF16-LE Defined value to a dynamic byte-array
+// #define STR_SERIAL       u"76543210"
+
 
 struct usb_string_descriptor_struct {
 	uint8_t bLength;
@@ -157,18 +170,6 @@ const static struct usb_string_descriptor_struct string2 __attribute__((section(
 };
 
 
-const static struct usb_string_descriptor_struct string3 __attribute__((section(".rodata")))  = {
-	sizeof(STR_SERIAL),
-	3,
-	STR_SERIAL
-};
-
-
-
-
-
-
-
 // This table defines which descriptor data is sent for each specific
 // request from the host (in wValue and wIndex).
 const static struct descriptor_list_struct {
@@ -182,7 +183,7 @@ const static struct descriptor_list_struct {
 	{0x00000300, (const uint8_t *)&string0, 4},
 	{0x04090301, (const uint8_t *)&string1, sizeof(STR_MANUFACTURER)},
 	{0x04090302, (const uint8_t *)&string2, sizeof(STR_PRODUCT)},	
-	{0x04090303, (const uint8_t *)&string3, sizeof(STR_SERIAL)}
+	{0x04090303, usb_serial, sizeof(usb_serial)}
 };
 
 #define DESCRIPTOR_LIST_ENTRIES ((sizeof(descriptor_list))/(sizeof(struct descriptor_list_struct)) )
