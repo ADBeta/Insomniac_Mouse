@@ -11,11 +11,13 @@
 * 	JP2    PA1
 * 	JP3    PC4
 *
-* ADBeta (c) 2025-2026    12 Feb 2026    Ver1.4.0
+* ADBeta (c) 2025-2026    13 Feb 2026    Ver1.5.0
 ******************************************************************************/
 #include "ch32v003fun.h"
 #include "rv003usb.h"
 #include "lib_rand.h"
+#include "serial_uuid.h"
+
 //#include <stdio.h>          // NOTE: Comment out when net debugging
 
 
@@ -127,33 +129,10 @@ void set_mouse_instr_bytes(uint8_t *buffer, mouse_instr_t instr);
 
 
 
-
-
-
-#include "rv003usb/usb_config.h"
-
-
-uint8_t usb_serial[USB_SERIAL_BYTES] = {
-	USB_SERIAL_BYTES,    // bLength
-	3,                   // bDescriptorType
-	'F', 0x00,           // wString
-	'E', 0x00,
-	'D', 0x00,
-	'C', 0x00,
-	'B', 0x00,
-	'A', 0x00,
-	'9', 0x00,
-	'8', 0x00,
-};
-
-
-
-
 /*** Main ********************************************************************/
 int main(void)
 {
-	SystemInit();
-
+	/*** System Init ********************/
 	// Grab two words from the near-top of RAM - Should be uninitialised noise
 	uint32_t ram_val =   *((volatile uint32_t*)0x20000700) 
 		               ^ *((volatile uint32_t*)0x200007AA);
@@ -163,7 +142,14 @@ int main(void)
 		seed(ram_val);
 
 
-	/*** GPIO *******************************************************************/
+	SystemInit();
+
+
+	// Set the USB Serial String to the UUID of the MCU
+	set_usb_serial_uuid();
+
+
+	/*** GPIO ***************************/
 	// Enable the GPIO Channels
 	RCC->APB2PCENR |= RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOC;
 
@@ -182,7 +168,7 @@ int main(void)
 	if(!((GPIOC->INDR >> 4) & 0x01)) g_user_mode |= 0x04;      // JP3 PC4
 
 
-	/*** USB ********************************************************************/
+	/*** USB ****************************/
 	// Ensures USB re-enumeration after bootloader or reset
 	Delay_Ms(1); 
 	usb_setup();
@@ -201,12 +187,13 @@ int main(void)
 			move_to_endpoint(rand_pos);
 
 			// Reset the empty flag, waits until it is done moving
-			g_buffer_empty_flag = 0x00;
-
-
-			if(g_user_mode == USER_MODE_CALM)
-				Delay_Ms(1000);
+			g_buffer_empty_flag = 0x00;			
 		}
+
+
+		// Add a delay for Calm mode to increase usability
+		if(g_user_mode == USER_MODE_CALM)
+			Delay_Ms(1000);
 
 	} 
 	// end of loop
@@ -216,6 +203,8 @@ int main(void)
 }
 
 
+
+/*** Functions ***************************************************************/
 // rv003usb HID Function
 void usb_handle_user_in_request( struct usb_endpoint * e, uint8_t * scratchpad, int endp, uint32_t sendtok, struct rv003usb_internal * ist )
 {
@@ -302,7 +291,6 @@ void set_mouse_instr_bytes(uint8_t buffer[], mouse_instr_t instr)
 }
 
 
-/*** Functions ***************************************************************/
 int16_t int_rand(void)
 {
 	// Generate a number between 0 - MAXIMUM, then subtract MAXIMUM/2 to get 
@@ -333,9 +321,9 @@ int16_t int_rand(void)
 			break;
 
 
-		// +- 1 Units
+		// +- 2 Units
 		case USER_MODE_CALM:
-			rand_num = (rand() & 0x01) ? 1 : -1;
+			rand_num = (rand() & 0x01) ? 2 : -2;
 			break;
 
 
