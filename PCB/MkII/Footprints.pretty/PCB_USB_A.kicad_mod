@@ -1,0 +1,155 @@
+(footprint "PCB_USB_A"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(descr "CARD-EDGE USB A CONNECTOR.")
+	(tags "CARD-EDGE USB A CONNECTOR.")
+	(property "Reference" "PCB_USB_A"
+		(at 0 -7.62 0)
+		(layer "B.SilkS")
+		(hide yes)
+		(uuid "a0c45883-c6a1-46e8-9883-115a72b6dce3")
+		(effects
+			(font
+				(size 0.4064 0.4064)
+				(thickness 0.0254)
+			)
+		)
+	)
+	(property "Value" "Val**"
+		(at -0.0508 -6.477 0)
+		(layer "B.SilkS")
+		(hide yes)
+		(uuid "f137c9b2-66de-43c3-afcd-42313c8c30a4")
+		(effects
+			(font
+				(size 0.4064 0.4064)
+				(thickness 0.0254)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "66658991-423c-45f0-906b-1d4909c2fe04")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "e189b7d1-d977-488e-9dba-f054af5d7680")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "153680d4-ed0a-4406-a536-7668d0dc4306")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start 3.7 -6.4)
+		(end 3.7 6.4)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "Dwgs.User")
+		(uuid "7132dba5-5354-4fee-ba95-26e1444ef8c1")
+	)
+	(fp_line
+		(start -5 -5.5)
+		(end -5 5.5)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "Edge.Cuts")
+		(uuid "c9274037-7658-42dd-a6b8-4ba3d2803056")
+	)
+	(fp_line
+		(start -4.5 6)
+		(end 3.7 6)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "Edge.Cuts")
+		(uuid "859f15c7-edde-465d-8c2c-0ab8e9170168")
+	)
+	(fp_line
+		(start 3.7 -6)
+		(end -4.5 -6)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "Edge.Cuts")
+		(uuid "9934535e-645a-4e47-baae-6910bccedccd")
+	)
+	(fp_arc
+		(start -5 -5.5)
+		(mid -4.853553 -5.853553)
+		(end -4.5 -6)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "Edge.Cuts")
+		(uuid "359d7e62-e5bd-4d29-a456-9c1d6c816736")
+	)
+	(fp_arc
+		(start -4.5 6)
+		(mid -4.853553 5.853553)
+		(end -5 5.5)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "Edge.Cuts")
+		(uuid "e3c667f7-3d1f-49b2-8292-54ffd56a6951")
+	)
+	(pad "1" smd rect
+		(at -0.19812 3.49758)
+		(size 7.49808 1.4986)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "973d0940-a642-407b-b2e4-4f567987bd46")
+	)
+	(pad "2" smd rect
+		(at 0.29972 0.99822)
+		(size 6.49986 0.99822)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "550c0db0-1fe9-439f-8a4e-dc0220290a50")
+	)
+	(pad "3" smd rect
+		(at 0.29972 -0.99822)
+		(size 6.49986 0.99822)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "68c4afd3-3bb8-482c-85aa-686d1fa47bc5")
+	)
+	(pad "4" smd rect
+		(at -0.19812 -3.49758)
+		(size 7.49808 1.4986)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "cf368fa0-fbba-405c-ba37-253ef5966513")
+	)
+)

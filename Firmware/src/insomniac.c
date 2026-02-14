@@ -11,7 +11,7 @@
 * 	JP2    PA1
 * 	JP3    PC4
 *
-* ADBeta (c) 2025-2026    13 Feb 2026    Ver1.5.0
+* ADBeta (c) 2025-2026    14 Feb 2026    Ver2.0.0
 ******************************************************************************/
 #include "ch32v003fun.h"
 #include "rv003usb.h"
@@ -51,7 +51,7 @@ typedef enum {
 	USER_MODE_NORMAL     = 0b000,
 	USER_MODE_HI_RES     = 0b001,
 	USER_MODE_JITTER     = 0b010,
-	USER_MODE_CALM       = 0b011
+	USER_MODE_STEPPED    = 0b011
 } user_mode_t;
 
 
@@ -192,8 +192,8 @@ int main(void)
 
 
 		// Add a delay for Calm mode to increase usability
-		if(g_user_mode == USER_MODE_CALM)
-			Delay_Ms(1000);
+		if(g_user_mode == USER_MODE_STEPPED)
+			Delay_Ms(5000);
 
 	} 
 	// end of loop
@@ -293,37 +293,40 @@ void set_mouse_instr_bytes(uint8_t buffer[], mouse_instr_t instr)
 
 int16_t int_rand(void)
 {
-	// Generate a number between 0 - MAXIMUM, then subtract MAXIMUM/2 to get 
-	// it in the correct range
-	int16_t rand_num = 0x7FFF;
+	int16_t rand_num;
+
+	// NOTE: Generate a random number, bitmask it to get it within range
+	// so the modulo operation isn't noticable slow.
+	// Modulo by (Maximum + 1), then subtract (Maximum / 2)
 
 	// Generate different Ranges based on user setup
 	switch(g_user_mode)
 	{
 		// +- 125 Units
 		case USER_MODE_NORMAL:
-			while(rand_num > 250) rand_num = rand() & 0x00FF;
-			rand_num -= 125;
+			rand_num = rand() & 0x01FF; 
+			rand_num = (rand_num % 251) - 125;
 			break;
 		
 
 		// +- 250 Units
 		case USER_MODE_HI_RES:
-			while(rand_num > 500) rand_num = rand() & 0x01FF;
-			rand_num -= 250;
+			rand_num = rand() & 0x03FF;
+			rand_num = (rand_num % 501) - 250;
 			break;
 
 
 		// +- 20 Units
 		case USER_MODE_JITTER:
-			while(rand_num > 40) rand_num = rand() & 0x003F;
-			rand_num -= 20;
+			rand_num = rand() & 0x007F; 
+			rand_num = (rand_num % 41) - 20;
 			break;
 
 
-		// +- 2 Units
-		case USER_MODE_CALM:
-			rand_num = (rand() & 0x01) ? 2 : -2;
+		// +- 2 Unit
+		case USER_MODE_STEPPED:
+			rand_num = rand() & 0x000F;
+			rand_num = (rand_num % 5) - 2;
 			break;
 
 
