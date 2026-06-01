@@ -11,7 +11,7 @@
 * 	JP2    PA1
 * 	JP3    PC4
 *
-* ADBeta (c) 2025-2026    14 Feb 2026    Ver2.0.0
+* ADBeta (c) 2025-2026    01 Jun 2026    Ver2.0.1
 ******************************************************************************/
 #include "ch32v003fun.h"
 #include "rv003usb.h"
@@ -19,6 +19,9 @@
 #include "serial_uuid.h"
 
 //#include <stdio.h>          // NOTE: Comment out when net debugging
+
+/*** Macro Functions *********************************************************/
+#define CLAMP(v, min, max)  ((v) < (min) ? (min) : ((v) > (max) ? (max) : (v)))
 
 
 /*** Types and Definitions ***************************************************/
@@ -128,6 +131,13 @@ mi_buffer_status_t move_to_endpoint(const position_t endpoint);
 void set_mouse_instr_bytes(uint8_t *buffer, mouse_instr_t instr);
 
 
+/// @brief Tracks the absolute position of the pointer and limits it to a
+/// given square
+/// @param pos, pointer to the position to add, returns the modified position
+/// @return None
+void limit_endpoint_to_square(position_t *pos);
+
+
 
 /*** Main ********************************************************************/
 int main(void)
@@ -184,6 +194,9 @@ int main(void)
 		{
 			// Generate a random position then push the commands to move to it
 			position_t rand_pos = {.x = int_rand(), .y = int_rand()};
+
+			limit_endpoint_to_square(&rand_pos);
+			
 			move_to_endpoint(rand_pos);
 
 			// Reset the empty flag, waits until it is done moving
@@ -210,13 +223,12 @@ void usb_handle_user_in_request( struct usb_endpoint * e, uint8_t * scratchpad, 
 {
 	static mouse_instr_t crnt_mouse_instr;
 	static mouse_instr_t next_mouse_instr;
+	// Define an empty mouse bytes array
+	uint8_t mouse_bytes[4] = {0x00, 0x00, 0x00, 0x00};
 
 	// Handle the USB Mouse messages
 	if(endp == 1)
 	{
-		// Define an empty mouse bytes array
-		uint8_t mouse_bytes[4] = {0x00, 0x00, 0x00, 0x00};
-
 		// Get the current and next data chunks
 		mi_buffer_status_t crnt_buffer_status = mi_buffer_pop(&crnt_mouse_instr);
 		mi_buffer_status_t next_buffer_status = mi_buffer_peek(&next_mouse_instr);
@@ -448,4 +460,27 @@ mi_buffer_status_t move_to_endpoint(const position_t endpoint)
 	}
 
 	return mi_return;
+}
+
+
+void limit_endpoint_to_square(position_t *pos)
+{
+	#define POS_X_MAX   50
+	#define POS_Y_MAX   50
+	static position_t absolute_pos = {0, 0};
+
+	// Copy the absolute position to get a delta
+	position_t old_pos = absolute_pos;
+
+	// Add the current posisiton delta to the absolute position
+	absolute_pos.x += pos->x;
+	absolute_pos.y += pos->y;
+
+	// Clamp to the bounds of the square
+	absolute_pos.x = CLAMP(absolute_pos.x, -POS_X_MAX, POS_X_MAX);
+	absolute_pos.y = CLAMP(absolute_pos.y, -POS_Y_MAX, POS_Y_MAX);
+	
+	// Return the actual movement that was allowed
+	pos->x = absolute_pos.x - old_pos.x;
+	pos->y = absolute_pos.y - old_pos.y;
 }
