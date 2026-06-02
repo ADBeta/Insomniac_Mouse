@@ -27,7 +27,7 @@ mouse to move.
 |   Hi-Res   |  1  |  0  |  0  |    ±250 Units Movement    |            Longer movement for Hi DPI Displays            |
 |   Jitter   |  0  |  1  |  0  |     ±20 Units Movement    |    More chaotic movement. Good for messing with games     |
 |   Stepped  |  1  |  1  |  0  | ±2 Unit Movement (Slower) |     Slow mode for controllability while plugged in        |
-|   Unused   |  0  |  0  |  1  |                           |                                                           |
+|   Square   |  0  |  0  |  1  | Lock movement to a square |         Prevents the mouse from wandering too far         |
 |   Unused   |  1  |  0  |  1  |                           |                                                           |
 |   Unused   |  0  |  1  |  1  |                           |                                                           |
 |   Unused   |  1  |  1  |  1  |                           |                                                           |
@@ -88,6 +88,7 @@ R1    1.5K Ohm           0603
 * V1.4.0 - Refined the code and added `CALM` Mode.
 * V1.5.0 - Added USB Serial Number based on UUID of the MCU
 * V2.0.0 - MkII PCB and minor bug fixes & refactor
+* V2.1.0 - Added Square Limit Mode
 
 
 ## TODO

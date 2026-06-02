@@ -11,7 +11,7 @@
 * 	JP2    PA1
 * 	JP3    PC4
 *
-* ADBeta (c) 2025-2026    01 Jun 2026    Ver2.0.1
+* ADBeta (c) 2025-2026    02 Jun 2026    Ver2.1.0
 ******************************************************************************/
 #include "ch32v003fun.h"
 #include "rv003usb.h"
@@ -54,7 +54,8 @@ typedef enum {
 	USER_MODE_NORMAL     = 0b000,
 	USER_MODE_HI_RES     = 0b001,
 	USER_MODE_JITTER     = 0b010,
-	USER_MODE_STEPPED    = 0b011
+	USER_MODE_STEPPED    = 0b011,
+	USER_MODE_SQUARE     = 0b100
 } user_mode_t;
 
 
@@ -173,9 +174,9 @@ int main(void)
 	GPIOC->OUTDR |=  (0x01 << 4);
 
 	// Read the Jumpers to set the user_mode
-	if(!((GPIOA->INDR >> 2) & 0x01)) g_user_mode |= 0x01;      // JP1 PA2
-	if(!((GPIOA->INDR >> 1) & 0x01)) g_user_mode |= 0x02;      // JP2 PA1
-	if(!((GPIOC->INDR >> 4) & 0x01)) g_user_mode |= 0x04;      // JP3 PC4
+	g_user_mode |= (!((GPIOA->INDR >> 2) & 1)) << 0;  // PA2
+	g_user_mode |= (!((GPIOA->INDR >> 1) & 1)) << 1;  // PA1
+	g_user_mode |= (!((GPIOC->INDR >> 4) & 1)) << 2;  // PC4
 
 
 	/*** USB ****************************/
@@ -195,8 +196,11 @@ int main(void)
 			// Generate a random position then push the commands to move to it
 			position_t rand_pos = {.x = int_rand(), .y = int_rand()};
 
-			limit_endpoint_to_square(&rand_pos);
+			// Limit the Endpoints to a defined square if selected
+			if(g_user_mode == USER_MODE_SQUARE)
+				limit_endpoint_to_square(&rand_pos);
 			
+			// Move to the given endpoint
 			move_to_endpoint(rand_pos);
 
 			// Reset the empty flag, waits until it is done moving
@@ -206,7 +210,7 @@ int main(void)
 
 		// Add a delay for Calm mode to increase usability
 		if(g_user_mode == USER_MODE_STEPPED)
-			Delay_Ms(5000);
+			Delay_Ms(1000);
 
 	} 
 	// end of loop
@@ -316,6 +320,7 @@ int16_t int_rand(void)
 	{
 		// +- 125 Units
 		case USER_MODE_NORMAL:
+		case USER_MODE_SQUARE:
 			rand_num = rand() & 0x01FF; 
 			rand_num = (rand_num % 251) - 125;
 			break;
